@@ -1,2 +1,3 @@
 #Buildを除外
 build/
+.vscode/
