@@ -27,8 +27,6 @@ class GetLidarRGBDImage{
         /*list*/
 		std::vector<std::string> _list_camera;
 		std::vector<msr::airlib::WorldSimApiBase::WeatherParameter> _list_weather;
-        /*pc*/
-		pcl::PointCloud<pcl::PointXYZ>::Ptr _pc {new pcl::PointCloud<pcl::PointXYZ>};
 
         //config
         std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/lidar_rgbd_image_data/test";
@@ -36,19 +34,26 @@ class GetLidarRGBDImage{
         std::string depth_image_directory = "/depth_image";
         std::string lidar_data_directory = "/lidar";
 
+        std::string save_csv_file_name = "data_list.csv";
+
+        std::string place_csv_root_path = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/SII2022_waypoint/AirSimNH/";
+        std::string place_csv_name = "random_place.csv";
+
         int num_total = 100;
 
         //place csv data
-        std::string place_csv_root_path = "/home/amsl/cpp/kawai_airsim_controller/place_data/Building99/";
-        std::string place_csv_name = "random_place.csv";
         std::vector< std::vector<std::string> > csv_data;
         size_t csv_data_size = 0; //csvファイル内のデータ数
         int image_counter = 0;
         bool save_color_checker = false;
 
+        /*Point Cloud*/
+		pcl::PointCloud<pcl::PointXYZ>::Ptr _pc {new pcl::PointCloud<pcl::PointXYZ>};
+
         //Parameters
         const bool _random_weather = true;
         const int _wait_time_millisec = 20;
+        const bool color_check = false; //save image as mono or RGB
 
         /*parameter-pose*/
         const float _roll_max = M_PI/180.0 * 30.0;
@@ -78,6 +83,13 @@ class GetLidarRGBDImage{
         float convert_angle(float rad);
         void eular_to_quat(float r, float p, float y, Eigen::Quaternionf& q);
         std::vector<std::string> split(std::string& input, char delimiter);
+        cv::Mat get_image(bool save_color_checker);
+        cv::Mat get_depth_image();
+        void input_data_to_pointcloud(msr::airlib::LidarData lidar_data);
+        std::string save_camera_image(cv::Mat camera_image, int num);
+        std::string save_depth_image(cv::Mat depth_image, int num);
+        std::string save_lidar_data(int num);
+        void save_csv(std::string camera_image_file_name, std::string depth_image_file_name, std::string lidar_scan_file_name, float x, float y, float z, float roll, float pitch, float yaw);
 };
 
 #endif

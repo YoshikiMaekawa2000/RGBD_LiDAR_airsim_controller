@@ -161,6 +161,140 @@ void GetLidarRGBDImage::eular_to_quat(float r, float p, float y, Eigen::Quaterni
 		* Eigen::AngleAxisf(r, Eigen::Vector3f::UnitX());
 }
 
+cv::Mat GetLidarRGBDImage::get_image(bool save_color_checker){
+    std::vector<msr::airlib::ImageCaptureBase::ImageRequest> list_request(_list_camera.size());
+
+    for(size_t i=0; i<_list_camera.size(); ++i){
+		list_request[i] = msr::airlib::ImageCaptureBase::ImageRequest(_list_camera[i], msr::airlib::ImageCaptureBase::ImageType::Scene, false, false);
+	}
+
+    std::vector<msr::airlib::ImageCaptureBase::ImageResponse> list_response = _client.simGetImages(list_request);
+    cv::Mat img_cv = cv::Mat(list_response[0].height, list_response[0].width, CV_8UC3);
+    for(int row=0; row<list_response[0].height; ++row){
+		for(int col=0; col<list_response[0].width; ++col){
+			img_cv.at<cv::Vec3b>(row, col)[0] = list_response[0].image_data_uint8[3*row*list_response[0].width + 3*col + 0];
+			img_cv.at<cv::Vec3b>(row, col)[1] = list_response[0].image_data_uint8[3*row*list_response[0].width + 3*col + 1];
+			img_cv.at<cv::Vec3b>(row, col)[2] = list_response[0].image_data_uint8[3*row*list_response[0].width + 3*col + 2];
+		}
+    }
+
+    cv::Mat return_img;
+
+    if( save_color_checker == false){
+        cvtColor(img_cv, return_img, cv::COLOR_BGR2GRAY);
+    }
+    else{
+        return_img = img_cv;
+    }
+
+    return return_img;
+}
+
+cv::Mat GetLidarRGBDImage::get_depth_image(){
+    std::vector<msr::airlib::ImageCaptureBase::ImageRequest> list_request(_list_camera.size());
+
+    for(size_t i=0; i<_list_camera.size(); ++i){
+		list_request[i] = msr::airlib::ImageCaptureBase::ImageRequest(_list_camera[i], msr::airlib::ImageCaptureBase::ImageType::DepthPlanar, true);
+	}
+
+    std::vector<msr::airlib::ImageCaptureBase::ImageResponse> list_response = _client.simGetImages(list_request);
+    cv::Mat img_cv = cv::Mat(list_response[0].height, list_response[0].width, CV_8UC3);
+    for(int row=0; row<list_response[0].height; ++row){
+		for(int col=0; col<list_response[0].width; ++col){
+			img_cv.at<cv::Vec3b>(row, col)[0] = list_response[0].image_data_uint8[3*row*list_response[0].width + 3*col + 0];
+			img_cv.at<cv::Vec3b>(row, col)[1] = list_response[0].image_data_uint8[3*row*list_response[0].width + 3*col + 1];
+			img_cv.at<cv::Vec3b>(row, col)[2] = list_response[0].image_data_uint8[3*row*list_response[0].width + 3*col + 2];
+		}
+    }
+
+    return img_cv;
+}
+
+void GetLidarRGBDImage::input_data_to_pointcloud(msr::airlib::LidarData lidar_data)
+{
+	/*input*/
+	for(size_t i=0; i<lidar_data.point_cloud.size(); i+=3){
+		std::cout
+			<< "i = " << i << "~" << i+2 << ": "
+			"x = " << lidar_data.point_cloud[i] << ", "
+			"y = " << lidar_data.point_cloud[i+1] << ", "
+			"z = " << lidar_data.point_cloud[i+2] << std::endl;
+		pcl::PointXYZ tmp;
+		tmp.x = lidar_data.point_cloud[i];
+		tmp.y = lidar_data.point_cloud[i+1];
+		tmp.z = lidar_data.point_cloud[i+2];
+		_pc->points.push_back(tmp);
+	}
+	/*width x height*/
+	_pc->width = _pc->points.size();
+	_pc->height = 1;
+	/*print*/
+	std::cout << "_pc->points.size() = " << _pc->points.size() << std::endl;
+
+    std::cout << "NED -> NEU" << std::endl;
+	for(size_t i=0; i<_pc->points.size(); ++i){
+		_pc->points[i].y *= -1;
+		_pc->points[i].z *= -1;
+	}
+}
+
+std::string GetLidarRGBDImage::save_camera_image(cv::Mat camera_image, int num){
+    std::string filename = "image" + std::to_string(num) + ".png";
+    std::string save_path = save_data_top_path + rgb_image_directory + "/" + filename;
+
+    cv::imwrite(save_path, camera_image);
+
+    return filename;
+}
+
+std::string GetLidarRGBDImage::save_depth_image(cv::Mat depth_image, int num){
+    std::string filename = "depth" + std::to_string(num) + ".png";
+    std::string save_path = save_data_top_path + depth_image_directory + "/" + filename;
+
+    cv::imwrite(save_path, depth_image);
+
+    return filename;
+}
+
+std::string GetLidarRGBDImage::save_lidar_data(int num){
+    std::string filename = "scan" + std::to_string(num) + ".pcd";
+    std::string save_path = save_data_top_path + lidar_data_directory + "/" + filename;
+    pcl::io::savePCDFileASCII(save_path, *_pc);
+
+    return filename;
+}
+
+void GetLidarRGBDImage::save_csv(std::string camera_image_file_name, std::string depth_image_file_name, std::string lidar_scan_file_name, float x, float y, float z, float roll, float pitch, float yaw)
+{
+    //Save CSV
+    std::string csv_path = save_data_top_path + "/" + save_csv_file_name;
+    std::ofstream final_csvfile(csv_path, std::ios::app); //ios::app で追記モードで開ける
+
+    std::string tmp_x = std::to_string(x);
+    std::string tmp_y = std::to_string(y);
+    std::string tmp_z = std::to_string(z);
+    
+    std::string tmp_roll = std::to_string(roll);
+    std::string tmp_pitch = std::to_string(pitch);
+    std::string tmp_yaw = std::to_string(yaw);
+
+    final_csvfile << camera_image_file_name << ","
+        << depth_image_file_name << ","
+        << lidar_scan_file_name << ","
+        << tmp_x << ","
+        << tmp_y << ","
+        << tmp_z << ","
+        << tmp_roll << ","
+        << tmp_pitch << ","
+        << tmp_yaw <<  ","
+        << tmp_roll << ","
+        << _imu.linear_acceleration.x() << "," 
+		<< -_imu.linear_acceleration.y() << "," 
+		<< -_imu.linear_acceleration.z() << std::endl;
+
+    final_csvfile.close();
+}
+
 void GetLidarRGBDImage::save_data(){
     int num = 0;
     std::cout << "Saving data..." << std::endl;
@@ -212,6 +346,31 @@ void GetLidarRGBDImage::save_data(){
 
         _imu = _client.getImuData();
 
+        //Get Camera Image
+        cv::Mat camera_image = get_image(save_color_checker);
+        
+        //Get Depth Data
+        cv::Mat depth_image = get_depth_image();
+
+        //Get LiDAR Data
+        msr::airlib::LidarData lidar_data = _client.getLidarData("");
+        input_data_to_pointcloud(lidar_data);
+
+        //Save Camera Image
+        std::string camera_image_file_name = save_camera_image(camera_image, num);
+
+        //Save depth Image
+        std::string depth_image_file_name = save_depth_image(depth_image, num);
+
+        //Save LiDAR Scan
+        std::string lidar_scan_file_name = save_lidar_data(num);
+
+        //Save List as CSV file
+        save_csv(camera_image_file_name, depth_image_file_name, lidar_scan_file_name, 
+                    place_data[0], place_data[1], place_data[2],
+                    roll, pitch, yaw);
+
+        num += 1;
 
     }
 
