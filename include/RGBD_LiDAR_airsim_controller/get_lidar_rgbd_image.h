@@ -52,7 +52,7 @@ class GetLidarRGBDImage{
 
         //Parameters
         const bool _random_weather = true;
-        const int _wait_time_millisec = 20;
+        const int _wait_time_millisec = 500;
         const bool color_check = false; //save image as mono or RGB
 
         /*parameter-pose*/
@@ -89,7 +89,7 @@ class GetLidarRGBDImage{
         std::string save_camera_image(cv::Mat camera_image, int num);
         std::string save_depth_image(cv::Mat depth_image, int num);
         std::string save_lidar_data(int num);
-        void save_csv(std::string camera_image_file_name, std::string depth_image_file_name, std::string lidar_scan_file_name, float x, float y, float z, float roll, float pitch, float yaw);
+        void save_csv(std::string camera_image_file_name, std::string depth_image_file_name, float x, float y, float z, float roll, float pitch, float yaw);
 };
 
 #endif
