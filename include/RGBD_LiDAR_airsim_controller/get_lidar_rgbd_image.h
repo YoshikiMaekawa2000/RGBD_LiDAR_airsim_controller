@@ -29,14 +29,14 @@ class GetLidarRGBDImage{
 		std::vector<msr::airlib::WorldSimApiBase::WeatherParameter> _list_weather;
 
         //config
-        std::string save_data_top_path = "/home/amsl/tmp_save/test";
+        std::string save_data_top_path = "/home/ssd_dir/tmp_save/test";
         std::string rgb_image_directory = "/camera_image";
         std::string depth_image_directory = "/depth_image";
         std::string lidar_data_directory = "/lidar_scan";
 
         std::string save_csv_file_name = "data_list.csv";
 
-        std::string place_csv_root_path = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/SII2022_Waypoint/AirSimNH/";
+        std::string place_csv_root_path = "/home/airsim_ws/RGBD_LiDAR_airsim_controller/place_data/SII2022_Waypoint/AirSimNH/";
         std::string place_csv_name = "random_place.csv";
 
         int num_total = 100;
