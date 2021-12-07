@@ -167,12 +167,15 @@ void GetLidarRGBDImage::eular_to_quat(float r, float p, float y, Eigen::Quaterni
 }
 
 cv::Mat GetLidarRGBDImage::get_image(bool save_color_checker){
+    std::cout << "Image Request: " << std::endl;
     std::vector<msr::airlib::ImageCaptureBase::ImageRequest> list_request(_list_camera.size()-1);
 
+    std::cout << "Image Array" << std::endl;
     for(size_t i=0; i<_list_camera.size()-1; ++i){
 		list_request[i] = msr::airlib::ImageCaptureBase::ImageRequest(_list_camera[0], msr::airlib::ImageCaptureBase::ImageType::Scene, false, false);
 	}
 
+    std:cout << "Get Image" << std::endl;
     std::vector<msr::airlib::ImageCaptureBase::ImageResponse> list_response = _client.simGetImages(list_request);
     
     cv::Mat img_cv = cv::Mat(list_response[0].height, list_response[0].width, CV_8UC3);
