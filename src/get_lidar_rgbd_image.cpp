@@ -339,15 +339,17 @@ void GetLidarRGBDImage::save_data(msr::airlib::MultirotorRpcLibClient &_client){
     std::cout << "CSV Data Size: " << csv_data_size << std::endl;
 
     while(num < num_total){
-        std::cout << "random int" << std::endl;
+        std::cout << "Sampling: " << num << std::endl;
+
+        //std::cout << "random int" << std::endl;
         int place_index = random_int(0, csv_data_size-1);
         //std::cout << "place_index: " << place_index << std::endl;
 
-        std::cout << "access csv" << std::endl;
+        //std::cout << "access csv" << std::endl;
         std::vector<std::string> tmp_place_csv_data = csv_data[place_index];
         std::vector<float> place_data = string_to_float(tmp_place_csv_data);
 
-        std::cout << "random place and attitude" << std::endl;
+        //std::cout << "random place and attitude" << std::endl;
         std::uniform_real_distribution<float> urd_roll(_roll_min , _roll_max);
         std::uniform_real_distribution<float> urd_pitch( _pitch_min, _pitch_max);
         std::uniform_real_distribution<float> urd_yaw( place_data[5] + _yaw_min, place_data[5] + _yaw_max);
@@ -376,54 +378,29 @@ void GetLidarRGBDImage::save_data(msr::airlib::MultirotorRpcLibClient &_client){
         Eigen::Quaternionf orientation;
         eular_to_quat(roll, pitch, yaw, orientation);
 
-        std::cout << "Roll:  " << roll << std::endl;
-        std::cout << "Pitch: " << pitch << std::endl;
-        std::cout << "Yaw:   " << yaw << std::endl;
-        //std::cout << "Quaternion" << orientation << std::endl;
-
-        //std::cout << position[0] << position[1] << position[2] << std::endl;
-
         msr::airlib::Pose goal = msr::airlib::Pose(position, orientation);
 
-        std::cout << "Set place" << std::endl;
+        //std::cout << "Set place" << std::endl;
          _client.simSetVehiclePose(goal, false);
 	    std::this_thread::sleep_for(std::chrono::milliseconds(_wait_time_millisec));
         _client.simPause(true);
 
-        update_state(_client);
-
         //Get Camera Image
-        std::cout << "get camera image" << std::endl;
         cv::Mat camera_image;
         camera_image = get_image(_client, save_color_checker);
         
         //Get Depth Data
-        std::cout << "get depth image" << std::endl;
         cv::Mat depth_image = get_depth_image(_client);
 
-        //Get LiDAR Data
-        /*
-        std::cout << "get lidar data" << std::endl;
-        msr::airlib::LidarData lidar_data = _client.getLidarData("");
-        input_data_to_pointcloud(lidar_data);
-        */
-
         //Save Camera Image
-        std::cout << "save camera image" << std::endl;
         std::string camera_image_file_name = save_camera_image(camera_image, num);
 
         //Save depth Image
-        std::cout << "save depth image" << std::endl;
         std::string depth_image_file_name = save_depth_image(depth_image, num);
 
         //Save LiDAR Scan
-        /*
-        std::cout << "save lidar scan" << std::endl;
-        std::string lidar_scan_file_name = save_lidar_data(num);
-        */
 
         //Save List as CSV file
-        std::cout << "save csv" << std::endl;
         save_csv(camera_image_file_name, depth_image_file_name,
                     place_data[0], place_data[1], place_data[2],
                     roll, pitch, yaw);
