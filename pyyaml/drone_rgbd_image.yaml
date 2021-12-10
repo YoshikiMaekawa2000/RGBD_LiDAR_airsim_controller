@@ -1,0 +1,20 @@
+save_data_top_path: "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/tmp_save/test"
+rgb_image_directory: "/camera_image"
+depth_image_directory: "/depth_image"
+lidar_data_directory: "/lidar_scan"
+save_csv_file_name: "data_list.csv"
+
+place_csv_root_path: "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/SII2022_Waypoint/AirSimNH/"
+place_csv_name: "random_place.csv"
+
+num_total: 100
+wait_time_milisec: 500
+color_checker: false
+
+roll_max: 30
+roll_min: -30
+pitch_max: 30
+pitch_min: -30
+yaw_max: 40
+yaw_min: -40
+resolution: 1.0

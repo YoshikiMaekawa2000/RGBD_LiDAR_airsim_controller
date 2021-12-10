@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5.0)
 project(RGBD_LiDAR_airsim_controller)
 
-add_compile_options(-std=c++14 -O2 -g -Wall)
+add_compile_options(-std=c++17 -O2 -g -Wall)
 
 find_package(OpenCV)
 find_package(PCL)
@@ -23,7 +23,7 @@ add_subdirectory("${AIRSIM_ROOT}/cmake/MavLinkCom" MavLinkCom)
 include_directories(
     include
 	${AIRSIM_ROOT}/AirLib/include
-	${AIRSIM_ROOT}/external/rpclib/rpclib-2.2.1/include
+	${AIRSIM_ROOT}/external/rpclib/rpclib-2.3.0/include
 	${AIRSIM_ROOT}/MavLinkCom/include
 	${AIRSIM_ROOT}/MavLinkCom/common_utils
 	${AIRSIM_ROOT}/AirLib/deps/eigen3

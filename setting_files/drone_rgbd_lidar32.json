@@ -13,7 +13,7 @@
         "AllowAPIAlways": true,
         "RC": {
           "RemoteControlID": 0,
-          "AllowAPIWhenDisconnected": false
+          "AllowAPIWhenDisconnected": true
         },
         "Sensors": {
           "Imu" : {
@@ -24,10 +24,10 @@
             "SensorType": 6,
             "Enabled": true,
             "NumberOfChannels": 32,
-            "VerticalFOVUpper": 10,
-            "VerticalFOVLower": -30,
-            "PointsPerSecond": 698880,
-            "RotationsPerSecond": 20,
+            "VerticalFOVUpper": 15,
+            "VerticalFOVLower": -25,
+            "PointsPerSecond": 579840,
+            "RotationsPerSecond": 10,
             "X": 0,
             "Y": 0,
             "Z": -0.4,
@@ -36,10 +36,10 @@
           }
         },
         "Cameras": {
-          "camera_0": {
+          "camera_rgb": {
             "CaptureSettings": [
               {
-                "PublishToRos": 0,
+                "PublishToRos": 1,
                 "ImageType": 0,
                 "Width": 640,
                 "Height": 480,
@@ -49,10 +49,10 @@
             "X": 0, "Y": 0, "Z": -0.4,
             "Pitch": 0, "Roll": 0, "Yaw": 0
           },
-          "camera_1": {
+          "camera_depth": {
             "CaptureSettings": [
               {
-                "PublishToRos": 0,
+                "PublishToRos": 1,
                 "ImageType": 3,
                 "Width": 640,
                 "Height": 480,
@@ -60,16 +60,15 @@
               }
             ],
             "X": 0, "Y": 0, "Z": -0.4,
-            "Pitch": 0, "Roll": 0, "Yaw": 0
-          } 
+            "Pitch": 0, "Roll": 0, "Yaw": 0.0
+          }
         },
         "X": 0, "Y": 0, "Z": 0,
         "Pitch": 0, "Roll": 0, "Yaw": 0
       }
     },
     "SubWindows": [
-      {"WindowID": 0, "ImageType": 0, "CameraName": "camera_0", "Visible": true},
-      {"WindowID": 1, "ImageType": 3, "CameraName": "camera_1", "Visible": true}
+      {"WindowID": 0, "ImageType": 0, "CameraName": "camera_rgb", "Visible": true},
+      {"WindowID": 1, "ImageType": 3, "CameraName": "camera_depth", "Visible": true}
     ]
   }
-  

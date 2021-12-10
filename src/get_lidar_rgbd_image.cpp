@@ -1,12 +1,12 @@
 #include "RGBD_LiDAR_airsim_controller/get_lidar_rgbd_image.h"
 
-GetLidarRGBDImage::GetLidarRGBDImage(){
+GetLidarRGBDImage::GetLidarRGBDImage(msr::airlib::MultirotorRpcLibClient &_client){
     std::cout << "Get Lidar RGBD Image" << std::endl;
-    client_initialization();
+    client_initialization(_client);
 
     _list_camera = {
-		"camera_0",
-        "camera_1"
+		"camera_rgb",
+        "camera_depth",
 	};
 }
 
@@ -14,9 +14,9 @@ GetLidarRGBDImage::~GetLidarRGBDImage(){
     std::cout << "End Get Lidar RGBD Image" << std::endl;
 }
 
-void GetLidarRGBDImage::client_initialization(){
+void GetLidarRGBDImage::client_initialization(msr::airlib::MultirotorRpcLibClient &_client){
     //connect
-    _client.confirmConnection(); //msr::airlib::RpcLibClientBase's function
+    _client.confirmConnection(); //msr::airlib::MultirotorRpcLibClient's function
 
     //reset
     std::cout << "Reset" << std::endl;
@@ -25,7 +25,7 @@ void GetLidarRGBDImage::client_initialization(){
     //pose
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    update_state();
+    update_state(_client);
 
     /*weather*/
 	if(_random_weather)	_client.simEnableWeather(true);
@@ -42,7 +42,7 @@ void GetLidarRGBDImage::client_initialization(){
 	};
 }
 
-void GetLidarRGBDImage::update_state(){
+void GetLidarRGBDImage::update_state(msr::airlib::MultirotorRpcLibClient &_client){
     /*pose*/
 	_pose = _client.simGetVehiclePose();
 	std::cout << "Pose: " << std::endl;
@@ -64,14 +64,14 @@ void GetLidarRGBDImage::update_state(){
 		<< _imu.linear_acceleration.z() << std::endl;
 }
 
-void GetLidarRGBDImage::spin(){
+void GetLidarRGBDImage::spin(msr::airlib::MultirotorRpcLibClient &_client){
     bool csv_checker = load_csv();
     if(!csv_checker){
         printf("ERROR LOADING CSV PLACE DATA FILE\n");
         exit(1);
     }
 
-    save_data();
+    save_data(_client);
 }
 
 bool GetLidarRGBDImage::load_csv(){
@@ -166,18 +166,24 @@ void GetLidarRGBDImage::eular_to_quat(float r, float p, float y, Eigen::Quaterni
 		* Eigen::AngleAxisf(r, Eigen::Vector3f::UnitX());
 }
 
-cv::Mat GetLidarRGBDImage::get_image(bool save_color_checker){
-    std::cout << "Image Request: " << std::endl;
+cv::Mat GetLidarRGBDImage::get_image(msr::airlib::MultirotorRpcLibClient &_client, bool save_color_checker){
+    //std::cout << "Image Request: " << std::endl;
     std::vector<msr::airlib::ImageCaptureBase::ImageRequest> list_request(_list_camera.size()-1);
 
-    std::cout << "Image Array" << std::endl;
+    //std::cout << "Image Array" << std::endl;
     for(size_t i=0; i<_list_camera.size()-1; ++i){
 		list_request[i] = msr::airlib::ImageCaptureBase::ImageRequest(_list_camera[0], msr::airlib::ImageCaptureBase::ImageType::Scene, false, false);
 	}
 
-    std:cout << "Get Image" << std::endl;
+    //std::cout << "size of list_request" << list_request.size() << std::endl;
+    //std::cout << "Get Image by getSimImage" << std::endl;
+    //std::vector<uint8_t> png_image = _client.simGetImage(0, msr::airlib::ImageCaptureBase::ImageType::Scene);
+
+    
+    //std::cout << "Get Image by getSimImages" << std::endl;
     std::vector<msr::airlib::ImageCaptureBase::ImageResponse> list_response = _client.simGetImages(list_request);
     
+    //std::cout << "Access Pixel" << std::endl;
     cv::Mat img_cv = cv::Mat(list_response[0].height, list_response[0].width, CV_8UC3);
     for(int row=0; row<list_response[0].height; ++row){
 		for(int col=0; col<list_response[0].width; ++col){
@@ -199,39 +205,26 @@ cv::Mat GetLidarRGBDImage::get_image(bool save_color_checker){
     return return_img;
 }
 
-cv::Mat GetLidarRGBDImage::get_depth_image(){
-    std::cout << "List Request" << std::endl;
+cv::Mat GetLidarRGBDImage::get_depth_image(msr::airlib::MultirotorRpcLibClient &_client){
+    //std::cout << "List Request" << std::endl;
     std::vector<msr::airlib::ImageCaptureBase::ImageRequest> list_request(_list_camera.size()-1);
 
-    std::cout << "Image Request" << std::endl;
+    //std::cout << "Image Request" << std::endl;
 	for(size_t i=0; i<_list_camera.size()-1; ++i){
-		list_request[0] = msr::airlib::ImageCaptureBase::ImageRequest(_list_camera[1], msr::airlib::ImageCaptureBase::ImageType::DepthPlanar, true);
+		list_request[0] = msr::airlib::ImageCaptureBase::ImageRequest(_list_camera[1], msr::airlib::ImageCaptureBase::ImageType::DepthVis, true);
 	}
 
-    std::cout << "get Image" << std::endl;
+    //std::cout << "get Image" << std::endl;
     std::vector<msr::airlib::ImageCaptureBase::ImageResponse> list_response = _client.simGetImages(list_request);
-
-    std::cout << "Access pixel" << std::endl;
-    //cv::Mat img_cv(list_response[0].height, list_response[0].width, CV_8UC1, list_response[0].image_data_float.data());
-
-    std::cout << "Response" << std::endl;
-    //std::cout << list_response[0].image_data_uint8.size() << std::endl;
-    //std::cout << list_response[0].image_data_float.size() << std::endl;
-
-    /*
-    for(size_t i=0; i <list_response[0].image_data_float.size(); i++){
-        std::cout << list_response[0].image_data_float[i] << std::endl;
-    }*/
-
-    //std::cout << list_response[0].image_data_uint8 << std::endl;
     
     
     cv::Mat img_cv(list_response[0].height, list_response[0].width, CV_32F, (void*)list_response[0].image_data_float.data());
-    
-    //cv::imshow("image",img_cv);
+    cv::Mat return_cv;
+    img_cv.convertTo(return_cv, CV_8U, 255.0);
+    //cv::normalize(img_cv, img_cv, cv::NORM_MINMAX);
+    //cv::imshow("image",return_cv);
     //cv::waitKey(0);
     
-    //cv::normalize(img_cv, img_cv, cv::NORM_MINMAX);
     
 
     /*
@@ -243,7 +236,7 @@ cv::Mat GetLidarRGBDImage::get_depth_image(){
 		}
     }
     */
-    return img_cv;
+    return return_cv;
 }
 
 void GetLidarRGBDImage::input_data_to_pointcloud(msr::airlib::LidarData lidar_data)
@@ -336,7 +329,7 @@ void GetLidarRGBDImage::save_csv(std::string camera_image_file_name, std::string
     final_csvfile.close();
 }
 
-void GetLidarRGBDImage::save_data(){
+void GetLidarRGBDImage::save_data(msr::airlib::MultirotorRpcLibClient &_client){
     int num = 0;
     std::cout << "Saving data..." << std::endl;
 
@@ -348,7 +341,7 @@ void GetLidarRGBDImage::save_data(){
     while(num < num_total){
         std::cout << "random int" << std::endl;
         int place_index = random_int(0, csv_data_size-1);
-        std::cout << "place_index: " << place_index << std::endl;
+        //std::cout << "place_index: " << place_index << std::endl;
 
         std::cout << "access csv" << std::endl;
         std::vector<std::string> tmp_place_csv_data = csv_data[place_index];
@@ -383,24 +376,30 @@ void GetLidarRGBDImage::save_data(){
         Eigen::Quaternionf orientation;
         eular_to_quat(roll, pitch, yaw, orientation);
 
+        std::cout << "Roll:  " << roll << std::endl;
+        std::cout << "Pitch: " << pitch << std::endl;
+        std::cout << "Yaw:   " << yaw << std::endl;
+        //std::cout << "Quaternion" << orientation << std::endl;
+
         //std::cout << position[0] << position[1] << position[2] << std::endl;
 
         msr::airlib::Pose goal = msr::airlib::Pose(position, orientation);
 
         std::cout << "Set place" << std::endl;
-         _client.simSetVehiclePose(goal, true);
+         _client.simSetVehiclePose(goal, false);
 	    std::this_thread::sleep_for(std::chrono::milliseconds(_wait_time_millisec));
         _client.simPause(true);
 
-        _imu = _client.getImuData();
+        update_state(_client);
 
         //Get Camera Image
         std::cout << "get camera image" << std::endl;
-        cv::Mat camera_image = get_image(save_color_checker);
+        cv::Mat camera_image;
+        camera_image = get_image(_client, save_color_checker);
         
         //Get Depth Data
         std::cout << "get depth image" << std::endl;
-        cv::Mat depth_image = get_depth_image();
+        cv::Mat depth_image = get_depth_image(_client);
 
         //Get LiDAR Data
         /*
@@ -430,15 +429,18 @@ void GetLidarRGBDImage::save_data(){
                     roll, pitch, yaw);
 
         num += 1;
+        _client.simPause(false);
 
     }
 
 }
 
 int main(){
-    GetLidarRGBDImage get_lidar_rgbd_image;
+    msr::airlib::MultirotorRpcLibClient _client;
 
-    get_lidar_rgbd_image.spin();
+    GetLidarRGBDImage get_lidar_rgbd_image(_client);
+
+    get_lidar_rgbd_image.spin(_client);
 
     return 0;
 }
