@@ -30,8 +30,8 @@ class GetInferenceImage{
         const int _wait_time_millisec = 200;
 
         /*parameter-pose*/
-		const float _x_range = 300.0;	//Neighborhood: 200, SoccerField: 350
-		const float _y_range = 300.0;	//Neighborhood: 200, SoccerField: 300
+		const float _x_range = 250.0;	//Neighborhood: 200, SoccerField: 350
+		const float _y_range = 250.0;	//Neighborhood: 200, SoccerField: 300
 		const float _z_min = -1.6; //Usualy -1.6 Building99 -2.5
 		const float _z_max = -1.4; //Usually -1.4 Builging99 1.0
 

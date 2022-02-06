@@ -65,8 +65,8 @@ class GetLidarRGBDImage{
         const float _pitch_max = M_PI/180.0 * 30.0;
         const float _pitch_min = -1.0 * M_PI/180.0 * 30.0;
 
-        const float _yaw_max = M_PI/180.0 * 40.0;
-        const float _yaw_min = -1.0 * M_PI/180.0 * 40.0;
+        const float _yaw_max = M_PI/180.0 * 45.0;
+        const float _yaw_min = -1.0 * M_PI/180.0 * 45.0;
 
         const float resolution = M_PI/180.0 * 1.0;
 
