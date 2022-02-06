@@ -36,3 +36,6 @@ target_link_libraries(get_lidar_rgbd_image AirLib rpc ${OpenCV_LIBRARIES} ${PCL_
 
 add_executable(get_clipped_rgbd_image src/get_clipped_rgbd_image.cpp)
 target_link_libraries(get_clipped_rgbd_image AirLib rpc ${OpenCV_LIBRARIES} ${PCL_LIBRARIES} cnpy)
+
+add_executable(selection_drone_point src/selection_drone_point.cpp)
+target_link_libraries(selection_drone_point AirLib rpc ${OpenCV_LIBRARIES} ${PCL_LIBRARIES} cnpy)
