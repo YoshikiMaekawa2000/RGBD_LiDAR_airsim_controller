@@ -33,3 +33,6 @@ include_directories(
 
 add_executable(get_lidar_rgbd_image src/get_lidar_rgbd_image.cpp)
 target_link_libraries(get_lidar_rgbd_image AirLib rpc ${OpenCV_LIBRARIES} ${PCL_LIBRARIES} cnpy)
+
+add_executable(get_clipped_rgbd_image src/get_clipped_rgbd_image.cpp)
+target_link_libraries(get_clipped_rgbd_image AirLib rpc ${OpenCV_LIBRARIES} ${PCL_LIBRARIES} cnpy)
