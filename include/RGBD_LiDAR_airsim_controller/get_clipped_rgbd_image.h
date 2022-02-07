@@ -31,16 +31,16 @@ class GetLidarRGBDImage{
 		std::vector<msr::airlib::WorldSimApiBase::WeatherParameter> _list_weather;
 
         //config
-        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/rgbd_airsim_image/color_depth_images/test50";
+        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/rgbd_airsim_image/color_depth_images/image50000";
         std::string rgb_image_directory = "/camera_image";
         std::string depth_image_directory = "/depth_image";
 
         std::string save_csv_file_name = "data_list.csv";
 
-        std::string place_csv_root_path = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/SII2022_Waypoint/AirSimNH/";
-        std::string place_csv_name = "random_place.csv";
+        std::string place_csv_root_path = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/RGBD_LiDAR_Attitude_Estimation/AirSimNH/";
+        std::string place_csv_name = "random_place2022_02_07.csv";
 
-        int num_total = 10;
+        int num_total = 10000;
         int clip_num = 5;
         const int size_image = 480;
 
@@ -55,7 +55,7 @@ class GetLidarRGBDImage{
 
         //Parameters
         const bool _random_weather = true;
-        const int _wait_time_millisec = 10;
+        const int _wait_time_millisec = 220;
         const bool color_check = false; //save image as mono or RGB
 
         /*parameter-pose*/
@@ -65,8 +65,8 @@ class GetLidarRGBDImage{
         const float _pitch_max = M_PI/180.0 * 30.0;
         const float _pitch_min = -1.0 * M_PI/180.0 * 30.0;
 
-        const float _yaw_max = M_PI/180.0 * 45.0;
-        const float _yaw_min = -1.0 * M_PI/180.0 * 45.0;
+        const float _yaw_max = M_PI/180.0 * 30.0;
+        const float _yaw_min = -1.0 * M_PI/180.0 * 30.0;
 
         const float resolution = M_PI/180.0 * 1.0;
 
