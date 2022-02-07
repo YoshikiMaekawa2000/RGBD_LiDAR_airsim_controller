@@ -349,10 +349,20 @@ void GetLidarRGBDImage::save_data(msr::airlib::MultirotorRpcLibClient &_client){
         std::vector<std::string> tmp_place_csv_data = csv_data[place_index];
         std::vector<float> place_data = string_to_float(tmp_place_csv_data);
 
+        float qx = place_data[3];
+        float qy = place_data[4];
+        float qz = place_data[5];
+        float qw = place_data[6];
+
+        Eigen::Quaternionf tmp_q(qw, qx, qy, qz);
+        Eigen::Vector3f euler = tmp_q.toRotationMatrix().eulerAngles(0, 1, 2);
+
+        //std::cout << "Yaw: " << euler[2] << std::endl;
+
         //std::cout << "random place and attitude" << std::endl;
         std::uniform_real_distribution<float> urd_roll(_roll_min , _roll_max);
         std::uniform_real_distribution<float> urd_pitch( _pitch_min, _pitch_max);
-        std::uniform_real_distribution<float> urd_yaw( place_data[5] + _yaw_min, place_data[5] + _yaw_max);
+        std::uniform_real_distribution<float> urd_yaw( euler[2] + _yaw_min, euler[2] + _yaw_max);
 
         Eigen::Vector3f position(place_data[0], place_data[1], place_data[2]); //x y z
 
@@ -381,9 +391,33 @@ void GetLidarRGBDImage::save_data(msr::airlib::MultirotorRpcLibClient &_client){
         msr::airlib::Pose goal = msr::airlib::Pose(position, orientation);
 
         //std::cout << "Set place" << std::endl;
-         _client.simSetVehiclePose(goal, false);
+         _client.simSetVehiclePose(goal, true);
 	    std::this_thread::sleep_for(std::chrono::milliseconds(_wait_time_millisec));
         _client.simPause(true);
+
+        _pose = _client.simGetVehiclePose();
+
+        std::cout << "Pose of Data: " << std::endl;
+	    std::cout << " Position: "	//Eigen::Vector3f
+		<< place_data[0] << ", "
+		<< place_data[1] << ", "
+		<< place_data[2] << std::endl;
+	    std::cout << " Orientation: "	//Eigen::Quaternionf
+		<< place_data[6] << ", "
+		<< place_data[3] << ", "
+		<< place_data[4] << ", "
+		<< place_data[5] << std::endl << std::endl;
+
+        std::cout << "Pose of Drone: " << std::endl;
+	    std::cout << " Position: "	//Eigen::Vector3f
+		<< _pose.position.x() << ", "
+		<< _pose.position.y() << ", "
+		<< _pose.position.z() << std::endl;
+	    std::cout << " Orientation: "	//Eigen::Quaternionf
+		<< _pose.orientation.w() << ", "
+		<< _pose.orientation.x() << ", "
+		<< _pose.orientation.y() << ", "
+		<< _pose.orientation.z() << std::endl << std::endl;
 
         //Get Camera Image
         cv::Mat camera_image;

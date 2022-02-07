@@ -31,31 +31,31 @@ class GetLidarRGBDImage{
 		std::vector<msr::airlib::WorldSimApiBase::WeatherParameter> _list_weather;
 
         //config
-        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/rgbd_airsim_image/image70000_2021_12_29";
+        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/rgbd_airsim_image/color_depth_images/inference_image/image2000";
         std::string rgb_image_directory = "/camera_image";
         std::string depth_image_directory = "/depth_image";
         std::string lidar_data_directory = "/lidar_scan";
 
         std::string save_csv_file_name = "data_list.csv";
 
-        std::string place_csv_root_path = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/SII2022_Waypoint/AirSimNH/";
-        std::string place_csv_name = "random_place.csv";
+        std::string place_csv_root_path = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/RGBD_LiDAR_Attitude_Estimation/AirSimNH/";
+        std::string place_csv_name = "random_place2022_02_07.csv";
 
-        int num_total = 70000;
+        int num_total = 2000;
 
         //place csv data
         std::vector< std::vector<std::string> > csv_data;
         size_t csv_data_size = 0; //csvファイル内のデータ数
         int image_counter = 0;
-        bool save_color_checker = false;
+        bool save_color_checker = true;
 
         /*Point Cloud*/
 		pcl::PointCloud<pcl::PointXYZ>::Ptr _pc {new pcl::PointCloud<pcl::PointXYZ>};
 
         //Parameters
         const bool _random_weather = true;
-        const int _wait_time_millisec = 10;
-        const bool color_check = false; //save image as mono or RGB
+        const int _wait_time_millisec = 270;
+        const bool color_check = true; //save image as mono or RGB
 
         /*parameter-pose*/
         const float _roll_max = M_PI/180.0 * 30.0;
@@ -64,8 +64,8 @@ class GetLidarRGBDImage{
         const float _pitch_max = M_PI/180.0 * 30.0;
         const float _pitch_min = -1.0 * M_PI/180.0 * 30.0;
 
-        const float _yaw_max = M_PI/180.0 * 40.0;
-        const float _yaw_min = -1.0 * M_PI/180.0 * 40.0;
+        const float _yaw_max = M_PI/180.0 * 30.0;
+        const float _yaw_min = -1.0 * M_PI/180.0 * 30.0;
 
         const float resolution = M_PI/180.0 * 1.0;
 
