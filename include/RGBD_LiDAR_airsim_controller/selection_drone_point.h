@@ -19,21 +19,16 @@ class GetInferenceImage{
 		std::vector<std::string> _list_camera;
 		std::vector<msr::airlib::WorldSimApiBase::WeatherParameter> _list_weather;
 
-        //Save Parameters
-        const bool _save_data = false;
-        const int _num_sampling = 300;
-        const std::string _save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/airsim_dataset_kawai/AirSimNH/range_30_30/dir3_image210000/";
-        const std::string _save_data_csv_name = "image_attitude.csv";
 
         //Parameters
         const bool _random_weather = false;
-        const int _wait_time_millisec = 200;
+        const int _wait_time_millisec = 300;
 
         /*parameter-pose*/
-		const float _x_range = 250.0;	//Neighborhood: 200, SoccerField: 350
-		const float _y_range = 250.0;	//Neighborhood: 200, SoccerField: 300
-		const float _z_min = -1.6; //Usualy -1.6 Building99 -2.5
-		const float _z_max = -1.4; //Usually -1.4 Builging99 1.0
+		const float _x_range = 25.0;	//Neighborhood: 200, SoccerField: 350 AirSimNH: 250
+		const float _y_range = 25.0;	//Neighborhood: 200, SoccerField: 300 AirSimNH: 250
+		const float _z_min = -2.5; //Usualy -1.6 Building99 -2.5
+		const float _z_max = 1.9; //Usually -1.4 Builging99 1.0
 
         const float _roll_max = 0.01 * M_PI;
         const float _roll_min = -0.01 * M_PI;
@@ -51,8 +46,8 @@ class GetInferenceImage{
         float tmp_yaw = 0.0;
 
         //csv place data
-        std::string place_csv_root_path = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/";
-        std::string place_csv_name = "random_place2.csv";
+        std::string place_csv_root_path = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/RGBD_LiDAR_Attitude_Estimation/Building99";
+        std::string place_csv_name = "random_place2022_02_07_2.csv";
         std::vector< std::vector<std::string> > csv_data;
         size_t csv_data_size;
 
