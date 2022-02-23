@@ -304,7 +304,6 @@ void GetLidarRGBDImage::save_csv(std::string camera_image_file_name, std::string
         << tmp_roll << ","
         << tmp_pitch << ","
         << tmp_yaw <<  ","
-        << tmp_roll << ","
         << _imu.linear_acceleration.x() << "," 
 		<< -_imu.linear_acceleration.y() << "," 
 		<< -_imu.linear_acceleration.z() << std::endl;
