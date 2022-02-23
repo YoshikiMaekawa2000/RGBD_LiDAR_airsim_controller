@@ -3,6 +3,7 @@
     "SettingsVersion": 1.2,
     "SimMode": "Multirotor",
     "ViewMode": "SpringArmChase",
+    "PhysicsEngineName":"ExternalPhysicsEngine",
     "ClockSpeed": 1.0,
     "Vehicles": {
       "drone": {
