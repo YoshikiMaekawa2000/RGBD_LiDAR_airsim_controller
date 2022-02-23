@@ -43,6 +43,12 @@ void GetLidarRGBDImage::client_initialization(msr::airlib::MultirotorRpcLibClien
 }
 
 void GetLidarRGBDImage::update_state(msr::airlib::MultirotorRpcLibClient &_client){
+    Eigen::Quaternionf init_quat(1.0, 0.0, 0.0, 0.0);
+    Eigen::Vector3f init_position(0.0, 0.0, 1.0);
+    msr::airlib::Pose goal = msr::airlib::Pose(init_position, init_quat);
+    _client.simSetVehiclePose(goal, true);
+	std::this_thread::sleep_for(std::chrono::milliseconds(_wait_time_millisec));
+    
     /*pose*/
 	_pose = _client.simGetVehiclePose();
 	std::cout << "Pose: " << std::endl;
@@ -384,16 +390,26 @@ void GetLidarRGBDImage::save_data(msr::airlib::MultirotorRpcLibClient &_client){
         _client.simPause(true);
         _pose = _client.simGetVehiclePose();
 
+        double drone_roll, drone_pitch, drone_yaw;
+        Eigen::Quaterniond tmp_quat(_pose.orientation.w(),
+                                    _pose.orientation.x(),
+                                    _pose.orientation.y(),
+                                    _pose.orientation.z() );
+        
+        Eigen::Vector3d euler_d = tmp_quat.toRotationMatrix().eulerAngles(2, 1, 0);
+        drone_yaw = euler_d[0]; 
+        drone_pitch = euler_d[1]; 
+        drone_roll = euler_d[2];
+
         std::cout << "Pose of Data: " << std::endl;
 	    std::cout << " Position: "	//Eigen::Vector3f
 		<< place_data[0] << ", "
 		<< place_data[1] << ", "
 		<< place_data[2] << std::endl;
 	    std::cout << " Orientation: "	//Eigen::Quaternionf
-		<< place_data[6] << ", "
-		<< place_data[3] << ", "
-		<< place_data[4] << ", "
-		<< place_data[5] << std::endl << std::endl;
+		<< roll/M_PI*180.0 << ", "
+		<< pitch/M_PI*180.0 << ", "
+        << yaw/M_PI*180.0 << std::endl << std::endl;
 
         std::cout << "Pose of Drone: " << std::endl;
 	    std::cout << " Position: "	//Eigen::Vector3f
@@ -401,10 +417,12 @@ void GetLidarRGBDImage::save_data(msr::airlib::MultirotorRpcLibClient &_client){
 		<< _pose.position.y() << ", "
 		<< _pose.position.z() << std::endl;
 	    std::cout << " Orientation: "	//Eigen::Quaternionf
-		<< _pose.orientation.w() << ", "
-		<< _pose.orientation.x() << ", "
-		<< _pose.orientation.y() << ", "
-		<< _pose.orientation.z() << std::endl << std::endl;
+		<< drone_roll/M_PI*180.0 << ", "
+		<< drone_pitch/M_PI*180.0 << ", "
+		<< drone_yaw/M_PI*180.0 << std::endl << std::endl;
+
+        std::cout << "------------------" << std::endl;
+
 
         //Get Original Camera Image
         cv::Mat camera_image = get_image(_client, save_color_checker);

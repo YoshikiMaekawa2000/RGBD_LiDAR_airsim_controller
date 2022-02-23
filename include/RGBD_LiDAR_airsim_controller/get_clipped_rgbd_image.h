@@ -31,7 +31,7 @@ class GetLidarRGBDImage{
 		std::vector<msr::airlib::WorldSimApiBase::WeatherParameter> _list_weather;
 
         //config
-        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/rgbd_airsim_image/color_depth_images/image25000";
+        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/rgbd_airsim_image/mono_depth_images_2/image50000";
         std::string rgb_image_directory = "/camera_image";
         std::string depth_image_directory = "/depth_image";
 
@@ -40,22 +40,23 @@ class GetLidarRGBDImage{
         std::string place_csv_root_path = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/RGBD_LiDAR_Attitude_Estimation/AirSimNH/";
         std::string place_csv_name = "random_place2022_02_07.csv";
 
-        int num_total = 5000;
+        int num_total = 10000;
         int clip_num = 5;
-        const int size_image = 480;
+        const int size_image = 672;
+        //const int size_image = 480;
 
         //place csv data
         std::vector< std::vector<std::string> > csv_data;
         size_t csv_data_size = 0; //csvファイル内のデータ数
         int image_counter = 0;
-        const bool save_color_checker = true;
+        const bool save_color_checker = false;
 
         /*Point Cloud*/
 		pcl::PointCloud<pcl::PointXYZ>::Ptr _pc {new pcl::PointCloud<pcl::PointXYZ>};
 
         //Parameters
         const bool _random_weather = true;
-        const int _wait_time_millisec = 220;
+        const int _wait_time_millisec = 300;
         const bool color_check = false; //save image as mono or RGB
 
         /*parameter-pose*/

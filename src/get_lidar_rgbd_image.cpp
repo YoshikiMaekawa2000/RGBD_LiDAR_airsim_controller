@@ -396,6 +396,16 @@ void GetLidarRGBDImage::save_data(msr::airlib::MultirotorRpcLibClient &_client){
         _client.simPause(true);
 
         _pose = _client.simGetVehiclePose();
+        double drone_roll, drone_pitch, drone_yaw;
+        Eigen::Quaterniond tmp_quat(_pose.orientation.w(),
+                                    _pose.orientation.x(),
+                                    _pose.orientation.y(),
+                                    _pose.orientation.z() );
+        
+        Eigen::Vector3d euler_d = tmp_quat.toRotationMatrix().eulerAngles(2, 1, 0);
+        drone_yaw = euler_d[0]; 
+        drone_pitch = euler_d[1]; 
+        drone_roll = euler_d[2];
 
         std::cout << "Pose of Data: " << std::endl;
 	    std::cout << " Position: "	//Eigen::Vector3f
@@ -403,10 +413,9 @@ void GetLidarRGBDImage::save_data(msr::airlib::MultirotorRpcLibClient &_client){
 		<< place_data[1] << ", "
 		<< place_data[2] << std::endl;
 	    std::cout << " Orientation: "	//Eigen::Quaternionf
-		<< place_data[6] << ", "
-		<< place_data[3] << ", "
-		<< place_data[4] << ", "
-		<< place_data[5] << std::endl << std::endl;
+		<< roll << ", "
+		<< pitch << ", "
+        << yaw << std::endl << std::endl;
 
         std::cout << "Pose of Drone: " << std::endl;
 	    std::cout << " Position: "	//Eigen::Vector3f
@@ -414,10 +423,11 @@ void GetLidarRGBDImage::save_data(msr::airlib::MultirotorRpcLibClient &_client){
 		<< _pose.position.y() << ", "
 		<< _pose.position.z() << std::endl;
 	    std::cout << " Orientation: "	//Eigen::Quaternionf
-		<< _pose.orientation.w() << ", "
-		<< _pose.orientation.x() << ", "
-		<< _pose.orientation.y() << ", "
-		<< _pose.orientation.z() << std::endl << std::endl;
+		<< drone_roll << ", "
+		<< drone_pitch << ", "
+		<< drone_yaw << std::endl << std::endl;
+
+        std::cout << "------------------" << std::endl;
 
         //Get Camera Image
         cv::Mat camera_image;
