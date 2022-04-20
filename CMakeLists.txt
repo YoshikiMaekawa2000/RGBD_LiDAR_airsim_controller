@@ -42,3 +42,6 @@ target_link_libraries(selection_drone_point AirLib rpc ${OpenCV_LIBRARIES} ${PCL
 
 add_executable(drone_flight src/drone_flight.cpp)
 target_link_libraries(drone_flight AirLib rpc ${OpenCV_LIBRARIES} ${PCL_LIBRARIES} cnpy)
+
+add_executable(waypoint_flight src/waypoint_flight.cpp)
+target_link_libraries(waypoint_flight AirLib rpc ${OpenCV_LIBRARIES} ${PCL_LIBRARIES} cnpy)
