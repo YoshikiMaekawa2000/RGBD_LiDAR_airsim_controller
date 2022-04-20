@@ -36,6 +36,9 @@ class DroneFlight{
 
         //config
         std::string save_data_top_path = "/media/hello";
+        std::string save_csv_file_name = "data_list.csv";
+        std::string place_csv_root_path = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/RGBD_LiDAR_Attitude_Estimation/Building99/";
+        std::string place_csv_name = "random_place2022_02_07_2.csv";
 
         int max_sequence = 100;
 
@@ -56,15 +59,23 @@ class DroneFlight{
 
         const float resolution = M_PI/180.0 * 1.0;
 
-        
+        bool check_1_deg_increment = false;
+
+
     public:
         DroneFlight();
         ~DroneFlight();
         void client_initialization();
         void update_state();
+        bool load_csv();
         void spin();
         std::vector<std::string> split(std::string& input, char delimiter);
-        void set_drone_random_point();
+        void set_drone_random_point(std::mt19937& mt);
+        int random_int(int min, int max);
+        std::vector<float> string_to_float(std::vector<std::string> tmp_place_csv_data);
+        float check_deg(float deg);
+        float convert_angle(float rad);
+        void eular_to_quat(float r, float p, float y, Eigen::Quaternionf& q);
 
 };
 

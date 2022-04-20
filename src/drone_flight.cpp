@@ -15,6 +15,7 @@ DroneFlight::DroneFlight(){
     std::cout << "Initialization Done" << std::endl;
 }
 
+DroneFlight::~DroneFlight(){}
 
 void DroneFlight::client_initialization(){
     //connect
@@ -108,7 +109,67 @@ bool DroneFlight::load_csv(){
     return checker;
 }
 
-void DroneFlight::set_drone_random_point(){
+std::vector<float> DroneFlight::string_to_float(std::vector<std::string> tmp_place_csv_data){
+    std::vector<float> farray;
+
+    for(size_t i=0; i < tmp_place_csv_data.size(); ++i){
+        std::string tmp_string = tmp_place_csv_data[i];
+        float tmp_f = std::stof(tmp_string);
+
+        farray.push_back(tmp_f);
+    }
+
+    return farray;
+}
+
+float DroneFlight::check_deg(float deg){
+    float result = 0;
+    if(deg > M_PI){
+        float tmp = deg - M_PI;
+        result = -1.0 * M_PI + tmp;
+        std::cout << "upper" << std::endl;
+    }
+    else if( deg < -1.0 * M_PI){
+        float tmp = deg + M_PI;
+        result = M_PI + tmp;
+        std::cout << "lower" << std::endl;
+    }
+    else{
+        result = deg;
+    }
+
+    return result;
+}
+
+float DroneFlight::convert_angle(float rad){
+    float eular = (rad/M_PI) * 180.0;
+    float int_eular = int(eular);
+    float return_rad = int_eular/180.0 *M_PI;
+    /*
+    std::cout << eular << std::endl;
+    std::cout << int_eular << std::endl;
+    std::cout << return_rad << std::endl;
+    */
+    return return_rad;
+}
+
+void DroneFlight::eular_to_quat(float r, float p, float y, Eigen::Quaternionf& q)
+{
+	q = Eigen::AngleAxisf(y, Eigen::Vector3f::UnitZ())
+		* Eigen::AngleAxisf(p, Eigen::Vector3f::UnitY())
+		* Eigen::AngleAxisf(r, Eigen::Vector3f::UnitX());
+}
+
+int DroneFlight::random_int(int min, int max){
+    int num = 0;
+    std::mt19937 mt{ std::random_device{}() };
+    std::uniform_int_distribution<int> dist(min, max);
+
+    num = dist(mt);
+    return num;
+}
+
+void DroneFlight::set_drone_random_point(std::mt19937& mt){
     int place_index = random_int(0, csv_data_size - 1);
     
     std::vector<std::string> tmp_place_csv_data = csv_data[place_index];
@@ -160,6 +221,7 @@ void DroneFlight::set_drone_random_point(){
 	    std::this_thread::sleep_for(std::chrono::milliseconds(_wait_time_millisec));
 
 
+        //print attitude
         _pose = _client.simGetVehiclePose();
         double drone_roll, drone_pitch, drone_yaw;
         Eigen::Quaterniond tmp_quat(_pose.orientation.w(),
@@ -205,7 +267,7 @@ void DroneFlight::spin(){
 
     while(count_num < max_sequence){
         std::cout << "Select Drone Point" << std::endl;
-        set_drone_random_point();
+        set_drone_random_point(mt);
 
 
 

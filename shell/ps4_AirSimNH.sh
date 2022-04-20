@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd /home/amsl/airsim_env/AirSimNH/LinuxNoEditor
+./AirSimNH.sh -opengl --settings /home/amsl/cpp/RGBD_LiDAR_airsim_controller/setting_files/ps4_flight.json
