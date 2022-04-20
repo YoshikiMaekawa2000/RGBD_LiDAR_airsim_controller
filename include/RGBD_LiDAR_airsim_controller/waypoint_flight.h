@@ -45,12 +45,12 @@ class WaypointFlight{
         std::vector< std::vector<std::string> > csv_data;
         size_t csv_data_size = 0;
         int num_target_points = 20;
-		double _height = -2.7;
+		double _height = -3.0;
 		double _path_resolution = 2.5;
 		double _noise_xy = 1.5;
-		double _noise_z = 0.3;
+		double _noise_z = 0.1;
 		double _velocity = 15.0;
-		double _cutting_corner = 5.0;
+		double _cutting_corner = 3.0;
         int before_idx = 0;
 
         std::string waypoint_file = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/waypoint_data/waypoint.csv";
@@ -70,6 +70,7 @@ class WaypointFlight{
         void printPath(void);
         void clientInitialization(void);
         void addNoise(Eigen::Vector3f& point);
+        void startFlight(void);
 };
 
 

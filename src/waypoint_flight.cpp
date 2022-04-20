@@ -202,9 +202,28 @@ void WaypointFlight::addNoise(Eigen::Vector3f& point)
 	point(2) += urd_z(mt);
 }
 
+void WaypointFlight::startFlight(void)
+{
+	std::cout << "startFlight" << std::endl;
+
+	_client.moveOnPathAsync(
+		_path,
+		_velocity,
+		Utils::max<float>(),
+		DrivetrainType::ForwardOnly,
+		YawMode(false, 0.0)
+		//-1,
+		//0
+	)->waitOnLastTask();
+
+	std::cout << "Go home" << std::endl;
+	_client.goHomeAsync()->waitOnLastTask();
+	//std::cout << "Land" << std::endl;
+	//_client.landAsync()->waitOnLastTask();
+}
+
 int main(){
     WaypointFlight waypoint_flight;
-
-
+    waypoint_flight.startFlight();
     return 0;
 }
