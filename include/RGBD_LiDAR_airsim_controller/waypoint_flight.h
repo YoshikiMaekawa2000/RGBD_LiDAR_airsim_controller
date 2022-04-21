@@ -17,6 +17,10 @@
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/io/pcd_io.h>
 
+#include <thread>
+#include <cstdio>
+#include <cstdint>
+
 struct waypoint{
     float x;
     float y;
@@ -54,7 +58,11 @@ class WaypointFlight{
         int before_idx = 0;
 
         std::string waypoint_file = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/waypoint_data/waypoint.csv";
-        //std::string waypoint_file = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/place_data/RGBD_LiDAR_Attitude_Estimation/Building99/random_place2022_02_07_2.csv";
+
+        //Collect parameter
+        bool end_checker = false;
+        int interval_seconds = 10; //miliseconds
+        int pic_size = 224;
 
     public:
         WaypointFlight();
@@ -71,6 +79,10 @@ class WaypointFlight{
         void clientInitialization(void);
         void addNoise(Eigen::Vector3f& point);
         void startFlight(void);
+        void collectData(void);
+        void spin();
+        msr::airlib::Pose getPose(void);
+        cv::Mat get_image(void);
 };
 
 
