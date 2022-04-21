@@ -238,16 +238,85 @@ void WaypointFlight::collectData(void)
     clock_t start_time = clock();
 
     while(end_checker==false){
+        clock_t process_start_time = clock();
+
+        //Get Data
         cv::Mat camera_image = get_image();
         msr::airlib::Pose _pose = getPose();
 
+        //Convert Data
+        float drone_roll, drone_pitch, drone_yaw;
+        Eigen::Quaterniond tmp_quat(_pose.orientation.w(),
+                                    _pose.orientation.x(),
+                                    _pose.orientation.y(),
+                                    _pose.orientation.z() );
+        
+        Eigen::Vector3d euler_d = tmp_quat.toRotationMatrix().eulerAngles(2, 1, 0);
+        drone_yaw = euler_d[0]; 
+        drone_pitch = euler_d[1]; 
+        drone_roll = euler_d[2];
+
+        std::string camera_image_file_name = save_camera_image(camera_image, num_count);
+
         clock_t end_time = clock();
-        float duration = (float)(end_time - start_time) / CLOCKS_PER_SEC;
+        float duration = (float)(end_time - process_start_time) / CLOCKS_PER_SEC;
+        float process_time = (float)(end_time - start_time) / CLOCKS_PER_SEC;
+
+        save_csv(num_count, 
+                process_time, 
+                camera_image_file_name, 
+                _pose.position.x(), 
+                _pose.position.y(), 
+                _pose.position.z(),
+                drone_roll, 
+                drone_pitch, 
+                drone_yaw);
+
+        std::cout << "Image" << num_count << ", " << "Duration: " << duration << std::endl;
 
         num_count += 1;
         std::this_thread::sleep_for(std::chrono::milliseconds(interval_seconds));
     }
 
+}
+
+void WaypointFlight::save_csv(int num_count, float process_time, std::string camera_image_file_name, float x, float y, float z, float roll, float pitch, float yaw){
+    //Save CSV
+    std::string csv_path = save_data_top_path + "/" + save_csv_file_name;
+    std::ofstream final_csvfile(csv_path, std::ios::app); //ios::app で追記モードで開ける
+
+    std::string tmp_count = std::to_string(num_count);
+    std::string tmp_process_time = std::to_string(process_time);
+
+    std::string tmp_x = std::to_string(x);
+    std::string tmp_y = std::to_string(y);
+    std::string tmp_z = std::to_string(z);
+    
+    std::string tmp_roll = std::to_string(roll);
+    std::string tmp_pitch = std::to_string(pitch);
+    std::string tmp_yaw = std::to_string(yaw);
+
+    final_csvfile << tmp_count << ","
+        << camera_image_file_name << ","
+        << tmp_process_time << ","
+        << tmp_x << ","
+        << tmp_y << ","
+        << tmp_z << ","
+        << tmp_roll << ","
+        << tmp_pitch << ","
+        << tmp_yaw <<  ","
+        << tmp_roll << std::endl;
+
+    final_csvfile.close();
+}
+
+std::string WaypointFlight::save_camera_image(cv::Mat camera_image, int num){
+    std::string filename = "image" + std::to_string(num) + ".png";
+    std::string save_path = save_data_top_path + rgb_image_directory + "/" + filename;
+
+    cv::imwrite(save_path, camera_image);
+
+    return filename;
 }
 
 cv::Mat WaypointFlight::get_image(){

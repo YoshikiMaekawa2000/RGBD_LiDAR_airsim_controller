@@ -48,12 +48,11 @@ class WaypointFlight{
 		std::vector<Eigen::Vector3f> _path;
         std::vector< std::vector<std::string> > csv_data;
         size_t csv_data_size = 0;
-        int num_target_points = 20;
-		double _height = -3.0;
+		double _height = -4.5;
 		double _path_resolution = 2.5;
 		double _noise_xy = 1.5;
 		double _noise_z = 0.1;
-		double _velocity = 15.0;
+		double _velocity = 10.0;
 		double _cutting_corner = 3.0;
         int before_idx = 0;
 
@@ -63,6 +62,11 @@ class WaypointFlight{
         bool end_checker = false;
         int interval_seconds = 10; //miliseconds
         int pic_size = 224;
+        int num_target_points = 100;
+
+        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/flight_airsim_image/sequence1";
+        std::string rgb_image_directory = "/camera_image";
+        std::string save_csv_file_name = "data_list.csv";
 
     public:
         WaypointFlight();
@@ -83,6 +87,8 @@ class WaypointFlight{
         void spin();
         msr::airlib::Pose getPose(void);
         cv::Mat get_image(void);
+        std::string save_camera_image(cv::Mat camera_image, int num);
+        void save_csv(int num_count, float process_time, std::string camera_image_file_name, float x, float y, float z, float roll, float pitch, float yaw);
 };
 
 
