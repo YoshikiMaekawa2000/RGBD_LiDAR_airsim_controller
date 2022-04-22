@@ -64,7 +64,7 @@ class WaypointFlight{
         int pic_size = 224;
         int num_target_points = 100;
 
-        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/flight_airsim_image/sequence1";
+        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/flight_airsim_image/sequence4";
         std::string rgb_image_directory = "/camera_image";
         std::string save_csv_file_name = "data_list.csv";
 
