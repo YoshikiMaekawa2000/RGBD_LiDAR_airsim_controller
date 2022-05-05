@@ -33,11 +33,35 @@ void WaypointFlight::setWayPoints(){
 
     for(int i=0; i<num_target_points-1; i++){
         waypoint_idx = chooseWaypoint(waypoint_idx, target_points);
-        _waypoints.push_back(Eigen::Vector3f(target_points[waypoint_idx].x, target_points[waypoint_idx].y, _height));
+
+        waypoint target_waypoint = create_slide_waypoint(target_points[waypoint_idx]);
+        
+        //_waypoints.push_back(Eigen::Vector3f(target_points[waypoint_idx].x, target_points[waypoint_idx].y, _height));
+        
+        _waypoints.push_back(Eigen::Vector3f( target_waypoint.x, target_waypoint.y, _height));
+        
         std::cout << "Waypoint number: " << i+2 << std::endl;
         std::cout << "waypoint_index: " << waypoint_idx << std::endl;
-        std::cout << "Waypoint: " << "x: " <<  target_points[waypoint_idx].x << " y: " << target_points[waypoint_idx].y << std::endl << std::endl;
+        std::cout << "Waypoint: " << "x: " <<  target_waypoint.x << " y: " << target_waypoint.y << std::endl << std::endl;
     }
+}
+
+waypoint WaypointFlight::create_slide_waypoint(waypoint selected_waypoint){
+    waypoint return_waypoint;
+
+    std::random_device seed_gen;
+    std::default_random_engine engine(seed_gen());
+    
+    std::normal_distribution<float> dist_x(selected_waypoint.x, standard_deviation);
+    std::normal_distribution<float> dist_y(selected_waypoint.y, standard_deviation);
+
+    return_waypoint.x = dist_x(engine);
+    return_waypoint.y = dist_y(engine);
+
+    return_waypoint.self_idx = selected_waypoint.self_idx;
+    //return_waypoint.idx = selected_waypoint.idx;
+
+    return return_waypoint;
 }
 
 int WaypointFlight::chooseWaypoint(int waypoint_idx, std::vector<waypoint> target_points){

@@ -63,8 +63,9 @@ class WaypointFlight{
         int interval_seconds = 10; //miliseconds
         int pic_size = 224;
         int num_target_points = 100;
+        float standard_deviation = 3.0;
 
-        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/flight_airsim_image/sequence5";
+        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/flight_airsim_image/new_sequence1";
         std::string rgb_image_directory = "/camera_image";
         std::string save_csv_file_name = "data_list.csv";
 
@@ -76,6 +77,7 @@ class WaypointFlight{
         std::vector<std::string> split(std::string& input, char delimiter);
         std::vector<float> string_to_float(std::vector<std::string> string_data);
         waypoint create_waypoint(std::vector<float> farray);
+        waypoint create_slide_waypoint(waypoint selected_waypoint);
         int chooseWaypoint(int waypoint_idx, std::vector<waypoint> target_points);
         int random_int(int min, int max);
         void devidePath(void);
