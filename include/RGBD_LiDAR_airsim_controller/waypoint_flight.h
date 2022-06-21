@@ -17,6 +17,8 @@
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/io/pcd_io.h>
 
+#include "common/VectorMath.hpp"
+
 #include <thread>
 #include <cstdio>
 #include <cstdint>

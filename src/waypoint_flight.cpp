@@ -282,13 +282,16 @@ void WaypointFlight::collectData(void)
         drone_roll = euler_d[2];
         */
 
-        Quaternion q_drone(_pose.orientation.x(),_pose.orientation.y(),_pose.orientation.z(),_pose.orientation.w());
+        //Quaternion q_drone(_pose.orientation.x(),_pose.orientation.y(),_pose.orientation.z(),_pose.orientation.w());
 
-        EulerAngle drone_eular = toEulerAngle(q_drone, EulerOrder::XYZ);
+        /*
+        EulerAngle drone_eular = toEulerAngle(q_drone, EulerOrder::YXZ);
 
         drone_roll = drone_eular.x;
         drone_pitch = drone_eular.y;
-        drone_yaw = drone_eular.z;
+        drone_yaw = drone_eular.z;*/
+
+        VectorMath::toEulerianAngle(_pose.orientation, drone_pitch, drone_roll, drone_yaw);
 
         std::cout << "Pose of Drone: " << std::endl;
 	    std::cout << " Position: "	//Eigen::Vector3f
