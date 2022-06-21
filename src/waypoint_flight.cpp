@@ -275,10 +275,32 @@ void WaypointFlight::collectData(void)
                                     _pose.orientation.y(),
                                     _pose.orientation.z() );
         
+        /*
         Eigen::Vector3d euler_d = tmp_quat.toRotationMatrix().eulerAngles(2, 1, 0);
         drone_yaw = euler_d[0]; 
         drone_pitch = euler_d[1]; 
         drone_roll = euler_d[2];
+        */
+
+        Quaternion q_drone(_pose.orientation.x(),_pose.orientation.y(),_pose.orientation.z(),_pose.orientation.w());
+
+        EulerAngle drone_eular = toEulerAngle(q_drone, EulerOrder::XYZ);
+
+        drone_roll = drone_eular.x;
+        drone_pitch = drone_eular.y;
+        drone_yaw = drone_eular.z;
+
+        std::cout << "Pose of Drone: " << std::endl;
+	    std::cout << " Position: "	//Eigen::Vector3f
+		<< _pose.position.x() << ", "
+		<< _pose.position.y() << ", "
+		<< _pose.position.z() << std::endl;
+	    std::cout << " Orientation: "	//Eigen::Quaternionf
+		<< drone_roll/M_PI*180.0 << ", "
+		<< drone_pitch/M_PI*180.0 << ", "
+		<< drone_yaw/M_PI*180.0 << std::endl << std::endl;
+
+        std::cout << "------------------" << std::endl;
 
         std::string camera_image_file_name = save_camera_image(camera_image, num_count);
 
@@ -328,8 +350,7 @@ void WaypointFlight::save_csv(int num_count, float process_time, std::string cam
         << tmp_z << ","
         << tmp_roll << ","
         << tmp_pitch << ","
-        << tmp_yaw <<  ","
-        << tmp_roll << std::endl;
+        << tmp_yaw << std::endl;
 
     final_csvfile.close();
 }
