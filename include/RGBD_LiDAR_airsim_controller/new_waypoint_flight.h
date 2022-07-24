@@ -190,7 +190,8 @@ class NewWaypointFlight{
         int num_target_points = 300;
         float standard_deviation = 3.0;
 
-        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/flight_airsim_image/new_sequence1";
+        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/flight_airsim_image/train_sequence1";
+        std::vector<std::string> save_data_list = {"/degree_0","/degree_5","/degree_10"};
         std::string rgb_image_directory = "/camera_image";
         std::string save_csv_file_name = "data_list.csv";
 

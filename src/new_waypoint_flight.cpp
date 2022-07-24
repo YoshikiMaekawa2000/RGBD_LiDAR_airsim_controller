@@ -310,8 +310,8 @@ std::vector<std::string> NewWaypointFlight::save_camera_images(std::vector<cv::M
     std::vector<std::string> filenames;
     
     for(int i=0; i<camera_images.size(); i++){
-        std::string filename = "image" + std::to_string(num) + "_" + std::to_string(i) + ".png";
-        std::string save_path = save_data_top_path + rgb_image_directory + "/" + filename;
+        std::string filename = "image" + std::to_string(num) + ".png";
+        std::string save_path = save_data_top_path + save_data_list[i] + rgb_image_directory + "/"+ filename;
 
         cv::imwrite(save_path, camera_images[i]);
         filenames.push_back(filename);
@@ -379,10 +379,13 @@ void NewWaypointFlight::collectData(void){
 
 void NewWaypointFlight::save_csv(int num_count, float process_time, std::vector<std::string> camera_image_file_names, float x, float y, float z, float roll, float pitch, float yaw){
     //Save CSV
-    std::string csv_path = save_data_top_path + "/" + save_csv_file_name;
-    std::ofstream final_csvfile(csv_path, std::ios::app); //ios::app で追記モードで開ける
+    //std::string csv_path = save_data_top_path + "/" + save_csv_file_name;
+    //std::ofstream final_csvfile(csv_path, std::ios::app); //ios::app で追記モードで開ける
 
     for(int i=0; i<camera_image_file_names.size(); ++i){
+        std::string csv_path = save_data_top_path + save_data_list[i] + "/" + save_csv_file_name;
+        std::ofstream final_csvfile(csv_path, std::ios::app); //ios::app で追記モードで開ける
+        
         std::string tmp_count = std::to_string(num_count);
         std::string tmp_process_time = std::to_string(process_time);
 
@@ -412,9 +415,10 @@ void NewWaypointFlight::save_csv(int num_count, float process_time, std::vector<
             << tmp_roll << ","
             << tmp_pitch << ","
             << tmp_yaw << std::endl;
+
+        final_csvfile.close();
     }
 
-    final_csvfile.close();
 }
 
 
