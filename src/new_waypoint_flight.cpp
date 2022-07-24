@@ -259,15 +259,15 @@ void NewWaypointFlight::startFlight(void)
 std::vector<cv::Mat> NewWaypointFlight::get_images(){
     std::vector<cv::Mat> images;
 
-    std::cout << "List Request" << std::endl;
+    //std::cout << "List Request" << std::endl;
     std::vector<msr::airlib::ImageCaptureBase::ImageRequest> list_request(_list_camera.size());
 	
-    std::cout << "Image Request" << std::endl;
+    //std::cout << "Image Request" << std::endl;
     for(size_t i=0; i<_list_camera.size(); ++i){
 		list_request[i] = msr::airlib::ImageCaptureBase::ImageRequest(_list_camera[i], msr::airlib::ImageCaptureBase::ImageType::Scene, false, false);
 	}
 
-    std::cout << "List Response" << std::endl;
+    //std::cout << "List Response" << std::endl;
 	std::vector<msr::airlib::ImageCaptureBase::ImageResponse> list_response = _client.simGetImages(list_request);
 
     for(size_t i=0; i<list_response.size(); ++i){
