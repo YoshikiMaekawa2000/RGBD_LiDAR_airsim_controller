@@ -1,10 +1,11 @@
-#include "RGBD_LiDAR_airsim_controller/waypoint_flight.h"
+#include "RGBD_LiDAR_airsim_controller/new_waypoint_flight.h"
 
-WaypointFlight::WaypointFlight(){
+NewWaypointFlight::NewWaypointFlight(){
 	std::cout << "----- drone_waypoint_flight_withnoise -----" << std::endl;
     _list_camera = {
-		"camera_rgb",
-        "camera_depth",
+		"camera_0",
+        "camera_1",
+        "camera_2",
 	};
 	/*initialize*/
 	setWayPoints();
@@ -14,11 +15,12 @@ WaypointFlight::WaypointFlight(){
 	clientInitialization();
 }
 
-WaypointFlight::~WaypointFlight(){
-    std::cout << "End WaypointFlight" << std::endl;
+NewWaypointFlight::~NewWaypointFlight(){
+    std::cout << "End NewWaypointFlight" << std::endl;
 }
 
-void WaypointFlight::setWayPoints(){
+
+void NewWaypointFlight::setWayPoints(){
     std::cout << "Load CSV" << std::endl;
     bool csv_checker = load_csv();
 
@@ -46,7 +48,7 @@ void WaypointFlight::setWayPoints(){
     }
 }
 
-waypoint WaypointFlight::create_slide_waypoint(waypoint selected_waypoint){
+waypoint NewWaypointFlight::create_slide_waypoint(waypoint selected_waypoint){
     waypoint return_waypoint;
 
     std::random_device seed_gen;
@@ -64,7 +66,7 @@ waypoint WaypointFlight::create_slide_waypoint(waypoint selected_waypoint){
     return return_waypoint;
 }
 
-int WaypointFlight::chooseWaypoint(int waypoint_idx, std::vector<waypoint> target_points){
+int NewWaypointFlight::chooseWaypoint(int waypoint_idx, std::vector<waypoint> target_points){
     int next_idx = -1;
     while(1){
         int id = random_int(0, 3);
@@ -84,7 +86,7 @@ int WaypointFlight::chooseWaypoint(int waypoint_idx, std::vector<waypoint> targe
     return next_idx;
 }
 
-int WaypointFlight::random_int(int min, int max){
+int NewWaypointFlight::random_int(int min, int max){
     int num = 0;
     std::mt19937 mt{ std::random_device{}() };
     std::uniform_int_distribution<int> dist(min, max);
@@ -93,7 +95,7 @@ int WaypointFlight::random_int(int min, int max){
     return num;
 }
 
-bool WaypointFlight::load_csv(){
+bool NewWaypointFlight::load_csv(){
     bool checker = true;
     std::ifstream csv_file(waypoint_file);
     if(!csv_file){
@@ -121,7 +123,7 @@ bool WaypointFlight::load_csv(){
     return checker;
 }
 
-std::vector<std::string> WaypointFlight::split(std::string& input, char delimiter)
+std::vector<std::string> NewWaypointFlight::split(std::string& input, char delimiter)
 {
     std::istringstream stream(input);
     std::string field;
@@ -132,7 +134,7 @@ std::vector<std::string> WaypointFlight::split(std::string& input, char delimite
     return result;
 }
 
-std::vector<float> WaypointFlight::string_to_float(std::vector<std::string> string_data){
+std::vector<float> NewWaypointFlight::string_to_float(std::vector<std::string> string_data){
     std::vector<float> farray;
 
     for(size_t i=0; i < string_data.size(); ++i){
@@ -155,7 +157,7 @@ std::vector<float> WaypointFlight::string_to_float(std::vector<std::string> stri
     return farray;
 }
 
-waypoint WaypointFlight::create_waypoint(std::vector<float> farray){
+waypoint NewWaypointFlight::create_waypoint(std::vector<float> farray){
     waypoint result;
     result.self_idx = int(farray[0]);
 
@@ -171,7 +173,7 @@ waypoint WaypointFlight::create_waypoint(std::vector<float> farray){
 }
 
 
-void WaypointFlight::devidePath(void)
+void NewWaypointFlight::devidePath(void)
 {
 	for(size_t i=0; i<_waypoints.size()-1; ++i){
 		Eigen::Vector3f delta = _waypoints[i+1] - _waypoints[i];
@@ -190,7 +192,7 @@ void WaypointFlight::devidePath(void)
 	}
 }
 
-void WaypointFlight::printPath(void)
+void NewWaypointFlight::printPath(void)
 {
 	for(size_t i=0; i<_path.size(); ++i){
 		std::cout << i << ": ("
@@ -202,7 +204,7 @@ void WaypointFlight::printPath(void)
 	std::cout << "_path.size() = " << _path.size() << std::endl;
 }
 
-void WaypointFlight::clientInitialization(void)
+void NewWaypointFlight::clientInitialization(void)
 {
 	/*connect*/
 	_client.confirmConnection();
@@ -218,7 +220,7 @@ void WaypointFlight::clientInitialization(void)
 	_client.takeoffAsync()->waitOnLastTask();
 }
 
-void WaypointFlight::addNoise(Eigen::Vector3f& point)
+void NewWaypointFlight::addNoise(Eigen::Vector3f& point)
 {
 	std::random_device rd;
 	std::mt19937 mt(rd());
@@ -230,7 +232,8 @@ void WaypointFlight::addNoise(Eigen::Vector3f& point)
 	point(2) += urd_z(mt);
 }
 
-void WaypointFlight::startFlight(void)
+
+void NewWaypointFlight::startFlight(void)
 {
 	std::cout << "startFlight" << std::endl;
 
@@ -253,10 +256,73 @@ void WaypointFlight::startFlight(void)
 	//_client.landAsync()->waitOnLastTask();
 }
 
-void WaypointFlight::collectData(void)
-{
-    sleep(3); //Wait 4 seconds
-    std::cout << "Start CollectData" << std::endl;
+std::vector<cv::Mat> NewWaypointFlight::get_images(){
+    std::vector<cv::Mat> images;
+
+    std::cout << "List Request" << std::endl;
+    std::vector<msr::airlib::ImageCaptureBase::ImageRequest> list_request(_list_camera.size());
+	
+    std::cout << "Image Request" << std::endl;
+    for(size_t i=0; i<_list_camera.size(); ++i){
+		list_request[i] = msr::airlib::ImageCaptureBase::ImageRequest(_list_camera[i], msr::airlib::ImageCaptureBase::ImageType::Scene, false, false);
+	}
+
+    std::cout << "List Response" << std::endl;
+	std::vector<msr::airlib::ImageCaptureBase::ImageResponse> list_response = _client.simGetImages(list_request);
+
+    for(size_t i=0; i<list_response.size(); ++i){
+		/*std::vector -> cv::mat*/
+		cv::Mat img_cv = cv::Mat(list_response[i].height, list_response[i].width, CV_8UC3);
+		for(int row=0; row<list_response[i].height; ++row){
+			for(int col=0; col<list_response[i].width; ++col){
+				img_cv.at<cv::Vec3b>(row, col)[0] = list_response[i].image_data_uint8[3*row*list_response[i].width + 3*col + 0];
+				img_cv.at<cv::Vec3b>(row, col)[1] = list_response[i].image_data_uint8[3*row*list_response[i].width + 3*col + 1];
+				img_cv.at<cv::Vec3b>(row, col)[2] = list_response[i].image_data_uint8[3*row*list_response[i].width + 3*col + 2];
+			}
+		}
+        int original_row = img_cv.rows;
+        int original_col = img_cv.cols;
+
+        cv::Mat clipped_image = cv::Mat(img_cv, cv::Rect( original_col/2-original_row/2, 0, original_row, original_row));
+
+        double clipped_row = clipped_image.rows;
+        double clipped_col = clipped_image.cols;
+
+        double row_ratio = (double)(pic_size)/clipped_row;
+        double col_ratio = (double)(pic_size)/clipped_col;
+
+        cv::Mat resized_image;
+        cv::resize(clipped_image, resized_image, cv::Size(), row_ratio, col_ratio);
+
+        images.push_back(resized_image);
+    }
+
+    return images;
+}
+
+msr::airlib::Pose NewWaypointFlight::getPose(){
+    msr::airlib::Pose _pose = _client.simGetVehiclePose();
+
+    return _pose;
+}
+
+std::vector<std::string> NewWaypointFlight::save_camera_images(std::vector<cv::Mat> camera_images, int num){
+    std::vector<std::string> filenames;
+    
+    for(int i=0; i<camera_images.size(); i++){
+        std::string filename = "image" + std::to_string(num) + "_" + std::to_string(i) + ".png";
+        std::string save_path = save_data_top_path + rgb_image_directory + "/" + filename;
+
+        cv::imwrite(save_path, camera_images[i]);
+        filenames.push_back(filename);
+    }
+
+    return filenames;
+}
+
+void NewWaypointFlight::collectData(void){
+    sleep(4); //Wait for 4 seconds
+    std::cout << "Start Collect Data" << std::endl;
 
     int num_count = 0;
     clock_t start_time = clock();
@@ -264,8 +330,8 @@ void WaypointFlight::collectData(void)
     while(end_checker==false){
         clock_t process_start_time = clock();
 
-        //Get Data
-        cv::Mat camera_image = get_image();
+        //Get camera images
+        std::vector<cv::Mat> camera_images = get_images();
         msr::airlib::Pose _pose = getPose();
 
         //Convert Data
@@ -274,48 +340,22 @@ void WaypointFlight::collectData(void)
                                     _pose.orientation.x(),
                                     _pose.orientation.y(),
                                     _pose.orientation.z() );
-        
-        /*
-        Eigen::Vector3d euler_d = tmp_quat.toRotationMatrix().eulerAngles(2, 1, 0);
-        drone_yaw = euler_d[0]; 
-        drone_pitch = euler_d[1]; 
-        drone_roll = euler_d[2];
-        */
 
-        //Quaternion q_drone(_pose.orientation.x(),_pose.orientation.y(),_pose.orientation.z(),_pose.orientation.w());
-
-        /*
-        EulerAngle drone_eular = toEulerAngle(q_drone, EulerOrder::YXZ);
-
-        drone_roll = drone_eular.x;
-        drone_pitch = drone_eular.y;
-        drone_yaw = drone_eular.z;*/
-    std::cout << "Pose of Drone: " << std::endl;
-    std::cout << " Position: "	//Eigen::Vector3f
-    << _pose.position.x() << ", "
-    << _pose.position.y() << ", "
-    << _pose.position.z() << std::endl;
-    std::cout << " Orientation: "	//Eigen::Quaternionf
-    << drone_roll/M_PI*180.0 << ", "
-    << drone_pitch/M_PI*180.0 << ", "
-    << drone_yaw/M_PI*180.0 << std::endl << std::endl;
-
-    std::cout << "------------------" << std::endl;
         VectorMath::toEulerianAngle(_pose.orientation, drone_pitch, drone_roll, drone_yaw);
 
         std::cout << "Pose of Drone: " << std::endl;
-	    std::cout << " Position: "	//Eigen::Vector3f
-		<< _pose.position.x() << ", "
-		<< _pose.position.y() << ", "
-		<< _pose.position.z() << std::endl;
-	    std::cout << " Orientation: "	//Eigen::Quaternionf
-		<< drone_roll/M_PI*180.0 << ", "
-		<< drone_pitch/M_PI*180.0 << ", "
-		<< drone_yaw/M_PI*180.0 << std::endl << std::endl;
+        std::cout << " Position: "	//Eigen::Vector3f
+            << _pose.position.x() << ", "
+            << _pose.position.y() << ", "
+            << _pose.position.z() << std::endl;
+        std::cout << " Orientation: "	//Eigen::Quaternionf
+            << drone_roll/M_PI*180.0 << ", "
+            << drone_pitch/M_PI*180.0 << ", "
+            << drone_yaw/M_PI*180.0 << std::endl << std::endl;
 
         std::cout << "------------------" << std::endl;
-
-        std::string camera_image_file_name = save_camera_image(camera_image, num_count);
+        
+        std::vector<std::string> camera_image_file_names = save_camera_images(camera_images, num_count);
 
         clock_t end_time = clock();
         float duration = (float)(end_time - process_start_time) / CLOCKS_PER_SEC;
@@ -323,7 +363,7 @@ void WaypointFlight::collectData(void)
 
         save_csv(num_count, 
                 process_time, 
-                camera_image_file_name, 
+                camera_image_file_names, 
                 _pose.position.x(), 
                 _pose.position.y(), 
                 _pose.position.z(),
@@ -332,119 +372,62 @@ void WaypointFlight::collectData(void)
                 drone_yaw);
 
         std::cout << "Image" << num_count << ", " << "Duration: " << duration << std::endl;
-
         num_count += 1;
         std::this_thread::sleep_for(std::chrono::milliseconds(interval_seconds));
     }
-
 }
 
-void WaypointFlight::save_csv(int num_count, float process_time, std::string camera_image_file_name, float x, float y, float z, float roll, float pitch, float yaw){
+void NewWaypointFlight::save_csv(int num_count, float process_time, std::vector<std::string> camera_image_file_names, float x, float y, float z, float roll, float pitch, float yaw){
     //Save CSV
     std::string csv_path = save_data_top_path + "/" + save_csv_file_name;
     std::ofstream final_csvfile(csv_path, std::ios::app); //ios::app で追記モードで開ける
 
-    std::string tmp_count = std::to_string(num_count);
-    std::string tmp_process_time = std::to_string(process_time);
+    for(int i=0; i<camera_image_file_names.size(); ++i){
+        std::string tmp_count = std::to_string(num_count);
+        std::string tmp_process_time = std::to_string(process_time);
 
-    std::string tmp_x = std::to_string(x);
-    std::string tmp_y = std::to_string(y);
-    std::string tmp_z = std::to_string(z);
-    
-    std::string tmp_roll = std::to_string(roll);
-    std::string tmp_pitch = std::to_string(pitch);
-    std::string tmp_yaw = std::to_string(yaw);
+        std::string tmp_x = std::to_string(x);
+        std::string tmp_y = std::to_string(y);
+        std::string tmp_z = std::to_string(z);
+        std::string tmp_roll = std::to_string(roll);
+        std::string tmp_pitch = std::to_string(pitch);
+        std::string tmp_yaw = std::to_string(yaw);
 
-    final_csvfile << tmp_count << ","
-        << camera_image_file_name << ","
-        << tmp_process_time << ","
-        << tmp_x << ","
-        << tmp_y << ","
-        << tmp_z << ","
-        << tmp_roll << ","
-        << tmp_pitch << ","
-        << tmp_yaw << std::endl;
+        if(i==0){
+            tmp_pitch = std::to_string(pitch);
+        }
+        else if(i==1){
+            tmp_pitch = std::to_string(pitch + (5.0* M_PI/180.0));
+        }
+        else if(i==2){
+            tmp_pitch = std::to_string(pitch + (10.0* M_PI/180.0));
+        }
+
+        final_csvfile << tmp_count << ","
+            << camera_image_file_names[i] << ","
+            << tmp_process_time << ","
+            << tmp_x << ","
+            << tmp_y << ","
+            << tmp_z << ","
+            << tmp_roll << ","
+            << tmp_pitch << ","
+            << tmp_yaw << std::endl;
+    }
 
     final_csvfile.close();
 }
 
-std::string WaypointFlight::save_camera_image(cv::Mat camera_image, int num){
-    std::string filename = "image" + std::to_string(num) + ".png";
-    std::string save_path = save_data_top_path + rgb_image_directory + "/" + filename;
 
-    cv::imwrite(save_path, camera_image);
-
-    return filename;
-}
-
-cv::Mat WaypointFlight::get_image(){
-    std::vector<msr::airlib::ImageCaptureBase::ImageRequest> list_request(_list_camera.size()-1);
-
-    for(size_t i=0; i<_list_camera.size()-1; ++i){
-		list_request[i] = msr::airlib::ImageCaptureBase::ImageRequest(_list_camera[0], msr::airlib::ImageCaptureBase::ImageType::Scene, false, false);
-	}
-
-    std::vector<msr::airlib::ImageCaptureBase::ImageResponse> list_response = _client.simGetImages(list_request);
-
-    cv::Mat img_cv = cv::Mat(list_response[0].height, list_response[0].width, CV_8UC3);
-    for(int row=0; row<list_response[0].height; ++row){
-		for(int col=0; col<list_response[0].width; ++col){
-			img_cv.at<cv::Vec3b>(row, col)[0] = list_response[0].image_data_uint8[3*row*list_response[0].width + 3*col + 0];
-			img_cv.at<cv::Vec3b>(row, col)[1] = list_response[0].image_data_uint8[3*row*list_response[0].width + 3*col + 1];
-			img_cv.at<cv::Vec3b>(row, col)[2] = list_response[0].image_data_uint8[3*row*list_response[0].width + 3*col + 2];
-		}
-    }
-
-    int original_row = img_cv.rows;
-    int original_col = img_cv.cols;
-
-    cv::Mat clipped_image = cv::Mat(img_cv, cv::Rect( original_col/2-original_row/2, 0, original_row, original_row));
-
-    double clipped_row = clipped_image.rows;
-    double clipped_col = clipped_image.cols;
-
-    double row_ratio = (double)(pic_size)/clipped_row;
-    double col_ratio = (double)(pic_size)/clipped_col;
-
-    cv::Mat resized_image;
-    cv::resize(clipped_image, resized_image, cv::Size(), row_ratio, col_ratio);
-
-    /*
-    cv::imshow("aaa", resized_image);
-    cv::waitKey(0);
-    */
-
-    return resized_image;
-}
-
-msr::airlib::Pose WaypointFlight::getPose(){
-    msr::airlib::Pose _pose = _client.simGetVehiclePose();
-    /*
-    std::cout << "Pose: " << std::endl;
-	std::cout << " Position: "	//Eigen::Vector3f
-		<< _pose.position.x() << ", "
-		<< _pose.position.y() << ", "
-		<< _pose.position.z() << std::endl;
-	std::cout << " Orientation: "	//Eigen::Quaternionf
-		<< _pose.orientation.w() << ", "
-		<< _pose.orientation.x() << ", "
-		<< _pose.orientation.y() << ", "
-		<< _pose.orientation.z() << std::endl;
-    
-    */
-    return _pose;
-}
-
-void WaypointFlight::spin(){
-    std::thread thread_flight(&WaypointFlight::startFlight, this);
-    std::thread thread_collection(&WaypointFlight::collectData, this);
+void NewWaypointFlight::spin(){
+    std::thread thread_flight(&NewWaypointFlight::startFlight, this);
+    std::thread thread_collection(&NewWaypointFlight::collectData, this);
 
     thread_flight.join();
     thread_collection.join();
 }
 
 int main(){
-    WaypointFlight waypoint_flight;
+    NewWaypointFlight waypoint_flight;
     waypoint_flight.spin();
 
     return 0;
