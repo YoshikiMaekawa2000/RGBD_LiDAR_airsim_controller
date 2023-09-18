@@ -181,7 +181,7 @@ class NewWaypointFlight{
         double _cutting_corner = 3.0;
         int before_idx = 0;
 
-        std::string waypoint_file = "/home/amsl/cpp/RGBD_LiDAR_airsim_controller/waypoint_data/waypoint.csv";
+        std::string waypoint_file = "/home/amsl/RGBD_LiDAR_airsim_controller/waypoint_data/waypoint.csv";
 
         //Collect parameter
         bool end_checker = false;
@@ -190,7 +190,7 @@ class NewWaypointFlight{
         int num_target_points = 300;
         float standard_deviation = 3.0;
 
-        std::string save_data_top_path = "/media/amsl/96fde31e-3b9b-4160-8d8a-a4b913579ca21/flight_airsim_image/train_sequence3";
+        std::string save_data_top_path = "/home/amsl";
         std::vector<std::string> save_data_list = {"/degree_0","/degree_5","/degree_10"};
         std::string rgb_image_directory = "/camera_image";
         std::string save_csv_file_name = "data_list.csv";
