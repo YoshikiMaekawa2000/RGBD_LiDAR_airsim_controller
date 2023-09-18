@@ -37,11 +37,11 @@ void NewWaypointFlight::setWayPoints(){
         waypoint_idx = chooseWaypoint(waypoint_idx, target_points);
 
         waypoint target_waypoint = create_slide_waypoint(target_points[waypoint_idx]);
-        
+
         //_waypoints.push_back(Eigen::Vector3f(target_points[waypoint_idx].x, target_points[waypoint_idx].y, _height));
-        
+
         _waypoints.push_back(Eigen::Vector3f( target_waypoint.x, target_waypoint.y, _height));
-        
+
         std::cout << "Waypoint number: " << i+2 << std::endl;
         std::cout << "waypoint_index: " << waypoint_idx << std::endl;
         std::cout << "Waypoint: " << "x: " <<  target_waypoint.x << " y: " << target_waypoint.y << std::endl << std::endl;
@@ -53,7 +53,7 @@ waypoint NewWaypointFlight::create_slide_waypoint(waypoint selected_waypoint){
 
     std::random_device seed_gen;
     std::default_random_engine engine(seed_gen());
-    
+
     std::normal_distribution<float> dist_x(selected_waypoint.x, standard_deviation);
     std::normal_distribution<float> dist_y(selected_waypoint.y, standard_deviation);
 
@@ -73,7 +73,7 @@ int NewWaypointFlight::chooseWaypoint(int waypoint_idx, std::vector<waypoint> ta
         //std::cout << "id: " << id << std::endl;
         next_idx = target_points[waypoint_idx].idx[id];
         //std::cout << "next_idx: " << next_idx << std::endl;
-        
+
         if(next_idx==before_idx || next_idx== -1){
             next_idx = -1;
         }
@@ -240,9 +240,9 @@ void NewWaypointFlight::startFlight(void)
 	_client.moveOnPathAsync(
 		_path,
 		_velocity,
-		Utils::max<float>(),
-		DrivetrainType::ForwardOnly,
-		YawMode(false, 0.0)
+		msr::airlib::Utils::max<float>(),
+		msr::airlib::DrivetrainType::ForwardOnly,
+		msr::airlib::YawMode(false, 0.0)
 		//-1,
 		//0
 	)->waitOnLastTask();
@@ -261,7 +261,7 @@ std::vector<cv::Mat> NewWaypointFlight::get_images(){
 
     //std::cout << "List Request" << std::endl;
     std::vector<msr::airlib::ImageCaptureBase::ImageRequest> list_request(_list_camera.size());
-	
+
     //std::cout << "Image Request" << std::endl;
     for(size_t i=0; i<_list_camera.size(); ++i){
 		list_request[i] = msr::airlib::ImageCaptureBase::ImageRequest(_list_camera[i], msr::airlib::ImageCaptureBase::ImageType::Scene, false, false);
@@ -308,7 +308,7 @@ msr::airlib::Pose NewWaypointFlight::getPose(){
 
 std::vector<std::string> NewWaypointFlight::save_camera_images(std::vector<cv::Mat> camera_images, int num){
     std::vector<std::string> filenames;
-    
+
     for(int i=0; i<camera_images.size(); i++){
         std::string filename = "image" + std::to_string(num) + ".png";
         std::string save_path = save_data_top_path + save_data_list[i] + rgb_image_directory + "/"+ filename;
@@ -341,7 +341,7 @@ void NewWaypointFlight::collectData(void){
                                     _pose.orientation.y(),
                                     _pose.orientation.z() );
 
-        VectorMath::toEulerianAngle(_pose.orientation, drone_pitch, drone_roll, drone_yaw);
+        msr::airlib::VectorMath::toEulerianAngle(_pose.orientation, drone_pitch, drone_roll, drone_yaw);
 
         std::cout << "Pose of Drone: " << std::endl;
         std::cout << " Position: "	//Eigen::Vector3f
@@ -354,21 +354,21 @@ void NewWaypointFlight::collectData(void){
             << drone_yaw/M_PI*180.0 << std::endl << std::endl;
 
         std::cout << "------------------" << std::endl;
-        
+
         std::vector<std::string> camera_image_file_names = save_camera_images(camera_images, num_count);
 
         clock_t end_time = clock();
         float duration = (float)(end_time - process_start_time) / CLOCKS_PER_SEC;
         float process_time = (float)(end_time - start_time) / CLOCKS_PER_SEC;
 
-        save_csv(num_count, 
-                process_time, 
-                camera_image_file_names, 
-                _pose.position.x(), 
-                _pose.position.y(), 
+        save_csv(num_count,
+                process_time,
+                camera_image_file_names,
+                _pose.position.x(),
+                _pose.position.y(),
                 _pose.position.z(),
-                drone_roll, 
-                drone_pitch, 
+                drone_roll,
+                drone_pitch,
                 drone_yaw);
 
         std::cout << "Image" << num_count << ", " << "Duration: " << duration << std::endl;
@@ -385,7 +385,7 @@ void NewWaypointFlight::save_csv(int num_count, float process_time, std::vector<
     for(int i=0; i<camera_image_file_names.size(); ++i){
         std::string csv_path = save_data_top_path + save_data_list[i] + "/" + save_csv_file_name;
         std::ofstream final_csvfile(csv_path, std::ios::app); //ios::app で追記モードで開ける
-        
+
         std::string tmp_count = std::to_string(num_count);
         std::string tmp_process_time = std::to_string(process_time);
 

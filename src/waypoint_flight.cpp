@@ -35,11 +35,11 @@ void WaypointFlight::setWayPoints(){
         waypoint_idx = chooseWaypoint(waypoint_idx, target_points);
 
         waypoint target_waypoint = create_slide_waypoint(target_points[waypoint_idx]);
-        
+
         //_waypoints.push_back(Eigen::Vector3f(target_points[waypoint_idx].x, target_points[waypoint_idx].y, _height));
-        
+
         _waypoints.push_back(Eigen::Vector3f( target_waypoint.x, target_waypoint.y, _height));
-        
+
         std::cout << "Waypoint number: " << i+2 << std::endl;
         std::cout << "waypoint_index: " << waypoint_idx << std::endl;
         std::cout << "Waypoint: " << "x: " <<  target_waypoint.x << " y: " << target_waypoint.y << std::endl << std::endl;
@@ -51,7 +51,7 @@ waypoint WaypointFlight::create_slide_waypoint(waypoint selected_waypoint){
 
     std::random_device seed_gen;
     std::default_random_engine engine(seed_gen());
-    
+
     std::normal_distribution<float> dist_x(selected_waypoint.x, standard_deviation);
     std::normal_distribution<float> dist_y(selected_waypoint.y, standard_deviation);
 
@@ -71,7 +71,7 @@ int WaypointFlight::chooseWaypoint(int waypoint_idx, std::vector<waypoint> targe
         //std::cout << "id: " << id << std::endl;
         next_idx = target_points[waypoint_idx].idx[id];
         //std::cout << "next_idx: " << next_idx << std::endl;
-        
+
         if(next_idx==before_idx || next_idx== -1){
             next_idx = -1;
         }
@@ -237,9 +237,9 @@ void WaypointFlight::startFlight(void)
 	_client.moveOnPathAsync(
 		_path,
 		_velocity,
-		Utils::max<float>(),
-		DrivetrainType::ForwardOnly,
-		YawMode(false, 0.0)
+		msr::airlib::Utils::max<float>(),
+		msr::airlib::DrivetrainType::ForwardOnly,
+		msr::airlib::YawMode(false, 0.0)
 		//-1,
 		//0
 	)->waitOnLastTask();
@@ -274,11 +274,11 @@ void WaypointFlight::collectData(void)
                                     _pose.orientation.x(),
                                     _pose.orientation.y(),
                                     _pose.orientation.z() );
-        
+
         /*
         Eigen::Vector3d euler_d = tmp_quat.toRotationMatrix().eulerAngles(2, 1, 0);
-        drone_yaw = euler_d[0]; 
-        drone_pitch = euler_d[1]; 
+        drone_yaw = euler_d[0];
+        drone_pitch = euler_d[1];
         drone_roll = euler_d[2];
         */
 
@@ -301,7 +301,7 @@ void WaypointFlight::collectData(void)
     << drone_yaw/M_PI*180.0 << std::endl << std::endl;
 
     std::cout << "------------------" << std::endl;
-        VectorMath::toEulerianAngle(_pose.orientation, drone_pitch, drone_roll, drone_yaw);
+    msr::airlib::VectorMath::toEulerianAngle(_pose.orientation, drone_pitch, drone_roll, drone_yaw);
 
         std::cout << "Pose of Drone: " << std::endl;
 	    std::cout << " Position: "	//Eigen::Vector3f
@@ -321,14 +321,14 @@ void WaypointFlight::collectData(void)
         float duration = (float)(end_time - process_start_time) / CLOCKS_PER_SEC;
         float process_time = (float)(end_time - start_time) / CLOCKS_PER_SEC;
 
-        save_csv(num_count, 
-                process_time, 
-                camera_image_file_name, 
-                _pose.position.x(), 
-                _pose.position.y(), 
+        save_csv(num_count,
+                process_time,
+                camera_image_file_name,
+                _pose.position.x(),
+                _pose.position.y(),
                 _pose.position.z(),
-                drone_roll, 
-                drone_pitch, 
+                drone_roll,
+                drone_pitch,
                 drone_yaw);
 
         std::cout << "Image" << num_count << ", " << "Duration: " << duration << std::endl;
@@ -350,7 +350,7 @@ void WaypointFlight::save_csv(int num_count, float process_time, std::string cam
     std::string tmp_x = std::to_string(x);
     std::string tmp_y = std::to_string(y);
     std::string tmp_z = std::to_string(z);
-    
+
     std::string tmp_roll = std::to_string(roll);
     std::string tmp_pitch = std::to_string(pitch);
     std::string tmp_yaw = std::to_string(yaw);
@@ -430,7 +430,7 @@ msr::airlib::Pose WaypointFlight::getPose(){
 		<< _pose.orientation.x() << ", "
 		<< _pose.orientation.y() << ", "
 		<< _pose.orientation.z() << std::endl;
-    
+
     */
     return _pose;
 }
